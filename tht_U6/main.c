@@ -31,7 +31,7 @@
 #define EEPROM_K_P_ADD						(uint16_t *)150
 #define EEPROM_K_I_ADD						(uint16_t *)170
 #define EEPROM_K_D_ADD						(uint16_t *)190
-#define EEPROM_FLAGDEBUG_ADD				(uint16_t *)210
+#define EEPROM_DEBUG_ADD				(uint16_t *)210
 
 #define TEMP_LOW							150
 #define TEMP_HIGH							450
@@ -40,17 +40,21 @@
 #define REC_TEMP_MAX_THRESHOLD				550
 #define REC_TEMP_MIN_THRESHOLD				250
 
-#define K_P_LOW								0
-#define K_P_HIGH							750
-#define K_P_DEFAULT							10
+#define K_P_LOW								10
+#define K_P_HIGH							7500
+#define K_P_DEFAULT							1500
 
-#define K_I_LOW								50
+#define K_I_LOW								0
 #define K_I_HIGH							500
 #define K_I_DEFAULT							0
 
 #define K_D_LOW								0
 #define K_D_HIGH							500
-#define K_D_DEFAULT							0
+#define K_D_DEFAULT							5
+
+uint16_t setKp = 1500;
+uint16_t setKi = 0;
+uint16_t setKd = 5;
 
 #define FLAGDEBUG_DEFAULT					0
 
@@ -73,7 +77,7 @@ void keyEventUpdate(void);
 
 uint8_t flagUpdateTime = 0, operationStatus;
 
-uint16_t setTemp, setKp, setKi, setKd, currTemp, lastTempUpdate, fcntfilter, prevTemp;
+uint16_t setTemp = 285, currTemp, lastTempUpdate, fcntfilter, prevTemp;
 
 uint16_t baud_rate, flagDebugMode = 1, OCR_value_1, OCR_value_2 = 0;
 
@@ -316,7 +320,7 @@ void eeprom_init(void)
 		setKp = eeprom_read_word(EEPROM_K_P_ADD);
 		setKi = eeprom_read_word(EEPROM_K_I_ADD);
 		setKd = eeprom_read_word(EEPROM_K_D_ADD);
-		flagDebugMode = eeprom_read_word(EEPROM_FLAGDEBUG_ADD);
+		flagDebugMode = eeprom_read_word(EEPROM_DEBUG_ADD);
 
 		if((setTemp < TEMP_LOW) || (setTemp > TEMP_HIGH))
 		{
@@ -345,7 +349,7 @@ void eeprom_init(void)
 		if((flagDebugMode != 0) && (flagDebugMode != 1))
 		{
 			flagDebugMode = 0;
-			eeprom_write_word(EEPROM_FLAGDEBUG_ADD, flagDebugMode);
+			eeprom_write_word(EEPROM_DEBUG_ADD, flagDebugMode);
 		}
 		
 	}
@@ -361,7 +365,7 @@ void eeprom_init(void)
 		eeprom_write_word(EEPROM_K_P_ADD, K_P_DEFAULT);
 		eeprom_write_word(EEPROM_K_I_ADD, K_I_DEFAULT);
 		eeprom_write_word(EEPROM_K_D_ADD, K_D_DEFAULT);
-		eeprom_write_word(EEPROM_FLAGDEBUG_ADD, FLAGDEBUG_DEFAULT);
+		eeprom_write_word(EEPROM_DEBUG_ADD, FLAGDEBUG_DEFAULT);
 		
 		eeprom_write_word(EEPROM_CHECKSUM_ADD, EEPROM_CHECKSUM);
 	}
