@@ -310,6 +310,34 @@ void pid_Controller(float setPoint, float currentPoint, float Kp, float Ki, floa
 		operationStatus = 2;
 
 	}
+	else
+	{
+		else{
+
+			float absError = error;
+			if (absError < 0)
+			absError *= -1;
+			sumError += (Ki * absError);
+			if(sumError > ((2*Kp)/10))
+			sumError = ((2*Kp)/10);
+			else if(sumError < 0)
+			sumError = 0;
+			if(Ki == 0)
+			sumError =0;
+
+			double output;
+			float pointDiff = currentPoint - currentLastPoint;
+			if(pointDiff < 0)
+			pointDiff *= -1;
+			output = (Kp * absError + sumError - (Ki * pointDiff));
+
+			if(output > 255)
+			output = 255;
+			else if(output < -255)
+			output = -255;
+
+			output = abs(output);
+	}
 }
 
 void eeprom_init(void)
