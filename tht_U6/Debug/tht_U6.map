@@ -5,7 +5,7 @@ c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/..
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(addsf3x.o)
                               c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(addsf3.o) (__addsf3x)
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(cmpsf2.o)
-                              main.o (__ltsf2)
+                              main.o (__eqsf2)
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(divsf3.o)
                               main.o (__divsf3)
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(divsf3x.o)
@@ -145,7 +145,7 @@ Discarded input sections
  .text.displayDebudInfo
                 0x00000000      0x23e main.o
  .text.pid_Controller
-                0x00000000      0x10e main.o
+                0x00000000      0x246 main.o
  .data.Interlock_Temp_Range
                 0x00000000        0x4 main.o
  .bss.sumError  0x00000000        0x4 main.o
@@ -885,50 +885,50 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x1ccf
+.debug_info     0x00000000     0x1d08
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x52e C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5/crtatmega16.o
  .debug_info    0x0000052e      0x5a8 Application/LCD_16x2.o
  .debug_info    0x00000ad6      0x1a6 Application/Timer.o
  .debug_info    0x00000c7c      0x23c Application/USART.o
- .debug_info    0x00000eb8      0xbb6 main.o
- .debug_info    0x00001a6e       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eerd_word.o)
- .debug_info    0x00001b06       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
- .debug_info    0x00001b9e       0x99 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eerd_block.o)
- .debug_info    0x00001c37       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
+ .debug_info    0x00000eb8      0xbef main.o
+ .debug_info    0x00001aa7       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eerd_word.o)
+ .debug_info    0x00001b3f       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
+ .debug_info    0x00001bd7       0x99 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eerd_block.o)
+ .debug_info    0x00001c70       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
 
-.debug_abbrev   0x00000000      0xb38
+.debug_abbrev   0x00000000      0xb56
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x4e7 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5/crtatmega16.o
  .debug_abbrev  0x000004e7      0x1c1 Application/LCD_16x2.o
  .debug_abbrev  0x000006a8       0xb3 Application/Timer.o
  .debug_abbrev  0x0000075b      0x12c Application/USART.o
- .debug_abbrev  0x00000887      0x261 main.o
- .debug_abbrev  0x00000ae8       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eerd_word.o)
- .debug_abbrev  0x00000afc       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
- .debug_abbrev  0x00000b10       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eerd_block.o)
- .debug_abbrev  0x00000b24       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
+ .debug_abbrev  0x00000887      0x27f main.o
+ .debug_abbrev  0x00000b06       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eerd_word.o)
+ .debug_abbrev  0x00000b1a       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
+ .debug_abbrev  0x00000b2e       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eerd_block.o)
+ .debug_abbrev  0x00000b42       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
 
-.debug_line     0x00000000     0x1042
+.debug_line     0x00000000     0x108c
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x116 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5/crtatmega16.o
  .debug_line    0x00000116      0x31a Application/LCD_16x2.o
  .debug_line    0x00000430      0x248 Application/Timer.o
  .debug_line    0x00000678      0x21b Application/USART.o
- .debug_line    0x00000893      0x5aa main.o
- .debug_line    0x00000e3d       0x67 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eerd_word.o)
- .debug_line    0x00000ea4       0x5b C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
- .debug_line    0x00000eff       0xab C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eerd_block.o)
- .debug_line    0x00000faa       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
+ .debug_line    0x00000893      0x5f4 main.o
+ .debug_line    0x00000e87       0x67 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eerd_word.o)
+ .debug_line    0x00000eee       0x5b C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
+ .debug_line    0x00000f49       0xab C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eerd_block.o)
+ .debug_line    0x00000ff4       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
 
-.debug_frame    0x00000000      0x378
+.debug_frame    0x00000000      0x398
  *(.debug_frame)
  .debug_frame   0x00000000       0xe8 Application/LCD_16x2.o
  .debug_frame   0x000000e8      0x10c Application/Timer.o
  .debug_frame   0x000001f4       0x94 Application/USART.o
- .debug_frame   0x00000288       0xf0 main.o
+ .debug_frame   0x00000288      0x110 main.o
 
-.debug_str      0x00000000      0x6be
+.debug_str      0x00000000      0x6ce
  *(.debug_str)
  .debug_str     0x00000000      0x1af C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5/crtatmega16.o
  .debug_str     0x000001af      0x218 Application/LCD_16x2.o
@@ -937,15 +937,15 @@ END GROUP
                                 0x20f (size before relaxing)
  .debug_str     0x000004b3       0x9a Application/USART.o
                                 0x217 (size before relaxing)
- .debug_str     0x0000054d      0x171 main.o
-                                0x407 (size before relaxing)
+ .debug_str     0x0000054d      0x181 main.o
+                                0x417 (size before relaxing)
 
-.debug_loc      0x00000000      0xa57
+.debug_loc      0x00000000      0xaf5
  *(.debug_loc)
  .debug_loc     0x00000000      0x508 Application/LCD_16x2.o
  .debug_loc     0x00000508       0xcb Application/Timer.o
  .debug_loc     0x000005d3      0x134 Application/USART.o
- .debug_loc     0x00000707      0x350 main.o
+ .debug_loc     0x00000707      0x3ee main.o
 
 .debug_macinfo
  *(.debug_macinfo)
