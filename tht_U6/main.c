@@ -82,6 +82,7 @@ uint16_t setTemp = 285, currTemp, lastTempUpdate, fcntfilter, prevTemp;
 uint16_t baud_rate, flagDebugMode = 1, OCR_value_1, OCR_value_2 = 0;
 
 float sumError= 0.00, Interlock_Temp_Range = 2.00;
+float lastcurrentPoint = 0.00;
 
 int main(void)
 {
@@ -267,7 +268,7 @@ void displayDebudInfo(float data)
 	LCD_Char(tampError);
 }
 
-void pid_Controller(float setPoint, float currentPoint, float Kp, float Ki, float Kd)
+float pid_Controller(float setPoint, float currentPoint, float Kp, float Ki, float Kd)
 {
 	float error = 0;
 
@@ -276,7 +277,7 @@ void pid_Controller(float setPoint, float currentPoint, float Kp, float Ki, floa
 
 	error = ((float)(setPoint - currentPoint));
 
-	if((error < ((float)Interlock_Temp_Range)) || (error > ((float)-Interlock_Temp_Range)))
+	if((error < ((float)Interlock_Temp_Range)) && (error > ((float)-Interlock_Temp_Range)))
 	{
 		SET_INTERLOCK_KEY;
 		RED_LED_OFF;
@@ -324,7 +325,7 @@ void pid_Controller(float setPoint, float currentPoint, float Kp, float Ki, floa
 		sumError =0;
 
 		double output;
-		float pointDiff = currentPoint - currentLastPoint;
+		float pointDiff = currentPoint - lastcurrentPoint;
 		if(pointDiff < 0)
 		pointDiff *= -1;
 		output = (Kp * absError + sumError - (Ki * pointDiff));
@@ -334,6 +335,37 @@ void pid_Controller(float setPoint, float currentPoint, float Kp, float Ki, floa
 		output = -255;
 
 		output = abs(output);
+		
+		if(error > 0)
+		{
+			timer0_stop();
+			OCR_value_1 = output;
+			OCR1A = OCR_value_1;
+			timer1_start();
+			operationStatus = 4;		
+		}
+		
+		else if(error < 0)
+		{
+			timer1_stop();
+			OCR_value_2 = output;
+			OCR0 = OCR_value_2;
+			timer0_start();
+			operationStatus = 3;
+		}
+		
+		else
+		{
+			
+			OCR_value_2 = 0;
+			OCR0 = OCR_value_2;
+			OCR_value_1 = 0;
+			OCR1A = OCR_value_1;
+			timer0_stop();
+			timer1_stop();
+			sumError = 0;
+			operationStatus = 5;
+		}
 	}
 }
 
