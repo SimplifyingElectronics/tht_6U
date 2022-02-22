@@ -31,14 +31,14 @@
 #define EEPROM_K_P_ADD						(uint16_t *)150
 #define EEPROM_K_I_ADD						(uint16_t *)170
 #define EEPROM_K_D_ADD						(uint16_t *)190
-#define EEPROM_DEBUG_ADD				(uint16_t *)210
+#define EEPROM_DEBUG_ADD					(uint16_t *)210
 
 #define TEMP_LOW							150
 #define TEMP_HIGH							450
 #define TEMP_DEFAULT						285
 
-#define REC_TEMP_MAX_THRESHOLD				550
-#define REC_TEMP_MIN_THRESHOLD				250
+#define REC_TEMP_HIGH_THRESHOLD				550
+#define REC_TEMP_LOW_THRESHOLD				250
 
 #define K_P_LOW								10
 #define K_P_HIGH							7500
@@ -75,9 +75,9 @@ void callback (void);
 void processTempUpdate(void);
 void keyEventUpdate(void);
 
-uint8_t flagUpdateTime = 0, operationStatus;
+uint8_t flagTempUpdate = 0, operationStatus;
 
-uint16_t setTemp = 285, currTemp, lastTempUpdate, fcntfilter, prevTemp;
+uint16_t setTemp = 285, currTemp, lastUpdatedTemp, fcntfilter, prevTemp;
 
 uint16_t baud_rate, flagDebugMode = 1, OCR_value_1, OCR_value_2 = 0;
 
@@ -95,8 +95,6 @@ int main(void)
 	 while(USART_init(115200) == USART_ERROR);
 	 
 	 LCD_Init();
-	 
-	 _delay_ms(50);
 	 
 	 if(flagDebugMode)
 	 {
@@ -137,45 +135,42 @@ int main(void)
 		if(milli() > pidUpdateTimeout + PID_UPDATE_TIME)
 		{
 			pidUpdateTimeout = milli();
-			if(flagUpdateTime)
+			if(flagTempUpdate)
 			{
-				flagUpdateTime = 0;
+				flagTempUpdate = 0;
 				/*processTempUpdate();*/
 				LCD_String_xy(0,15,"''");
 			}
-			keyEventUpdate();
-		}	
+		}
+		keyEventUpdate();	
     }
 }
 void processTempUpdate(void)
 {
-	uint16_t recTemp = lastTempUpdate;
+	uint16_t recTempData = lastUpdatedTemp;
 
-	if(recTemp == 0x3030) // this is error and print it on lcd
+	if(recTempData == 0x3030) // this is error and print it on lcd
 	{
 		if(flagDebugMode)
 		{
-			flagDebugMode = 0;
 			LCD_String_xy(0,15,"E");
 		}
  		return;
  	}
 
-	if((recTemp > REC_TEMP_MAX_THRESHOLD) || (recTemp > REC_TEMP_MIN_THRESHOLD))// this is error and print it on lcd
+	if((recTempData > REC_TEMP_HIGH_THRESHOLD) || (recTempData > REC_TEMP_LOW_THRESHOLD))// this is error and print it on lcd
 	{
 		if(flagDebugMode)
 		{
-			flagDebugMode = 0;
 			LCD_String_xy(0,15,"R");
 		}
 		return;
 	}
 
-	if((prevTemp != 0) && (((prevTemp -20) > recTemp) || ((prevTemp + 20) < recTemp)))// this is error and print it on lcd
+	if((prevTemp != 0) && (((prevTemp -20) > recTempData) || ((prevTemp + 20) < recTempData)))// this is error and print it on lcd
 	{
 		if(flagDebugMode)
 		{
-			flagDebugMode = 0;
 			LCD_String_xy(0,15,"F");
 		}
 	
@@ -184,7 +179,7 @@ void processTempUpdate(void)
 		if(fcntfilter > 10)
 		{
 			fcntfilter = 0;
-			prevTemp = recTemp;
+			prevTemp = recTempData;
 		}
 		return;
 	}
@@ -193,13 +188,13 @@ else
 	fcntfilter = 0;
 }
 
-// // if()
-// // {
-// // 	print K at 16	
-// // }
+	if(flagDebugMode)
+	{
+		LCD_String_xy(0,15,"K");
+	}
 
-	prevTemp = recTemp;
-	currTemp = recTemp;
+	prevTemp = recTempData;
+	currTemp = recTempData;
 	LCD_Pos_xy(1,11);
 	LCD_float(((float) currTemp/10));
 
@@ -368,6 +363,42 @@ float pid_Controller(float setPoint, float currentPoint, float Kp, float Ki, flo
 		}
 	}
 }
+void displayUserInfo(uint16_t data)
+{
+	if(data>999)
+	{
+		LCD_Char(((data / 1000) % 10) + 0x30);
+	}
+	
+	LCD_Char(((data / 100) % 10) + 0x30);
+	LCD_Char(((data / 10) % 10) + 0x30);
+	LCD_Char('.');
+	LCD_Char(((data / 1) % 10) + 0x30);
+	LCD_Char(' ');
+}
+void keyEventUpdate(void)
+{
+	if((IS_INC_KEY_PRESSED) && (IS_DEC_KEY_PRESSED))
+	{
+		timer0_stop();
+		timer1_stop();
+		LCD_Clear();
+		_delay_ms(50);
+		
+		while((!IS_INC_KEY_RELEASED) && (!IS_INC_KEY_RELEASED));
+		
+		LCD_location(2,1);
+		LCD_String("V - ");
+		LCD_Char(((VERSION / 100) % 10) + 0x30);
+		LCD_Char(".");
+		LCD_Char(((VERSION / 100) % 10) + 0x30);
+		LCD_Char(".");
+		LCD_Char(((VERSION / 100) % 10) + 0x30);
+		LCD_location(1,1);
+		LCD_String("Gain P = ");
+		displayUserInfo(setKp);
+	}
+}
 
 void eeprom_init(void)
 {
@@ -414,15 +445,19 @@ void eeprom_init(void)
 	else
 	{
 		setTemp = TEMP_DEFAULT;
+		eeprom_write_word(EEPROM_TEMP_ADD, setTemp);
+		
 		setKp = K_P_DEFAULT;
+		eeprom_write_word(EEPROM_K_P_ADD, setKp);
+		
 		setKi = K_I_DEFAULT;
+		eeprom_write_word(EEPROM_K_I_ADD, setKi);
+		
 		setKd = K_D_DEFAULT;
-		flagDebugMode = 0;
-		eeprom_write_word(EEPROM_TEMP_ADD, TEMP_DEFAULT);
-		eeprom_write_word(EEPROM_K_P_ADD, K_P_DEFAULT);
-		eeprom_write_word(EEPROM_K_I_ADD, K_I_DEFAULT);
-		eeprom_write_word(EEPROM_K_D_ADD, K_D_DEFAULT);
-		eeprom_write_word(EEPROM_DEBUG_ADD, FLAGDEBUG_DEFAULT);
+		eeprom_write_word(EEPROM_K_D_ADD, setKd);
+		
+		flagDebugMode = 0;		
+		eeprom_write_word(EEPROM_DEBUG_ADD, flagDebugMode);
 		
 		eeprom_write_word(EEPROM_CHECKSUM_ADD, EEPROM_CHECKSUM);
 	}

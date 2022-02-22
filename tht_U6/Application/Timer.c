@@ -12,13 +12,12 @@
 
 extern void callback (void);
 
-uint32_t fcnt_millis;
+long fcnt_millis;
 
 void timer0_init(void)
 {
 	DDRB |= (1<<3);
-	TCCR0 |= ((1<<WGM01) | (1<<WGM01) | (1<<CS01) | (1<<CS01));
-	TCCR0 &= (~((1<<CS00) | (1<<COM00)));
+	TCCR0 |= ((1<<WGM01) | (1<<WGM00) | (1<<CS01) | (1<<CS00));
 	TCNT0 = 0;
 	
 	/* Turn on interrupt */
@@ -82,19 +81,11 @@ void timer2_init(void)
 {
 	/* check for ctc and 500 Hz 128 prescaler */
 	/* TIMSK OCIE2 fntmilli = 0  */
-	DDRD |= (1<<5);
-	ICR1 = 255;
-	TCCR1A &= (~((1<<WGM10) | (1<<CS00)));
-	TCCR1A |= (1<<WGM11);
-	
-	TCCR1B &= (~(1<<CS12));
-	TCCR1B |= ((1<<WGM13) | (1<<WGM12) | (1<<CS11) | (1<<CS10));
-	
-	TCCR1A &= (~(1<<COM1A0));
-	
-	OCR1A = 0;
-	TCNT1 = 0;
-	
+	TCCR2 =| ((1<<WGM21) | (1<<CS22) | (1<<CS20));
+	OCR2 = 124;
+	TIMSK |= OCIE2;
+	TCNT2 = 0;
+	fcnt_millis = 0;
 	/* Turn on interrupt */
 	sei();
 }

@@ -7,20 +7,19 @@
 
 #include "USART.h"
 
-unsigned char USART_init(uint32_t ubrrvalue)
+unsigned char USART_init(uint32_t baud_rate)
 {
 	/* Initialize Q */
 	UQFront = UQEnd = -1;
 	
+	uint16_t ubrrvalue = (16000000/(baud_rate * 8) - 1);
 	if(ubrrvalue <= 0)
 	{
 		return USART_ERROR;
 	}
 	
 	else
-	{
-		baud_rate = (16000000/(115200 * 8) - 1);
-		
+	{		
 		UBRRH = (baud_rate >> 8);
 		UBRRL = baud_rate;
 	
