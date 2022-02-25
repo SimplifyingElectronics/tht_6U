@@ -398,6 +398,48 @@ void keyEventUpdate(void)
 		LCD_String("Gain P = ");
 		displayUserInfo(setKp);
 	}
+	
+	uint8_t fcntSpeedInc = 0, fcntSpeedDec = 0;
+	
+	while(IS_KEY_PROGRAM_RELEASED)
+	{
+		if(IS_KEY_INC_PRESSED)
+		{
+			fcntSpeedDec = 0;
+			setKp = setKp + 1 + fcntSpeedInc++;
+			
+			if(setKp > K_P_HIGH)
+				setKp = K_P_HIGH;
+			
+			LCD_location(1,10);
+			displayUserInfo(setKp);
+			_delay_ms(250);
+		}
+		
+		else if(IS_KEY_DEC_PRESSED)
+		{
+			fcntSpeedInc = 0;
+			if(setKp > (K_P_LOW + 1 + fcntSpeedInc))
+			setKp = setKp - 1 - fcntSpeedInc++;
+			
+			else
+			setKp = K_P_LOW;
+			
+			LCD_location(1,10);
+			displayUserInfo(setKp);
+			_delay_ms(250);
+		}
+		
+		if(IS_KEY_INC_PRESSED)
+		fcntSpeedInc = 0;
+		
+		else if(IS_KEY_DEC_PRESSED)
+		fcntSpeedDec = 0;
+		
+		_delay_ms(250);
+		
+		while(IS_KEY_PROGRAM_PRESSED);
+	}
 }
 
 void eeprom_init(void)
