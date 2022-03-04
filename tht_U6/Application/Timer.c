@@ -81,7 +81,7 @@ void timer2_init(void)
 {
 	/* check for ctc and 500 Hz 128 prescaler */
 	/* TIMSK OCIE2 fntmilli = 0  */
-	TCCR2 =| ((1<<WGM21) | (1<<CS22) | (1<<CS20));
+	TCCR2 |= ((1<<WGM21) | (1<<CS22) | (1<<CS20));
 	OCR2 = 124;
 	TIMSK |= OCIE2;
 	TCNT2 = 0;
