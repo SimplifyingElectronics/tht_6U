@@ -9,6 +9,7 @@
 #include <avr/interrupt.h>
 
 #include "Timer.h"
+#include "LCD_16x2.h"
 
 extern void callback (void);
 
@@ -26,7 +27,7 @@ void timer0_init(void)
 void timer0_start(void)
 {
 	/* Clear OC0 on compare match, set OC0 at BOTTOM, (non-inverting mode) */
-	TCCR0 |= (1<<COM00);
+	TCCR0 |= (1<<COM01);
 	
 	/*  */
 	TCNT0 = 0;
@@ -45,13 +46,11 @@ void timer1_init(void)
 {
 	DDRD |= (1<<5);
 	ICR1 = 255;
-	TCCR1A &= (~((1<<WGM10) | (1<<CS00)));
+	TCCR1A &= (~((1<<WGM10) | (1<<CS00) | (1<<COM1A0) | (1<<COM1A1)));
+	TCCR1B &= (~(1<<CS12));
 	TCCR1A |= (1<<WGM11);
 	
-	TCCR1B &= (~(1<<CS12));
 	TCCR1B |= ((1<<WGM13) | (1<<WGM12) | (1<<CS11) | (1<<CS10));
-	
-	TCCR1A &= (~(1<<COM1A0));
 	
 	OCR1A = 0;
 	TCNT1 = 0;
@@ -83,9 +82,10 @@ void timer2_init(void)
 	/* TIMSK OCIE2 fntmilli = 0  */
 	TCCR2 |= ((1<<WGM21) | (1<<CS22) | (1<<CS20));
 	OCR2 = 124;
-	TIMSK |= OCIE2;
+	TIMSK |= (1<<OCIE2);
 	TCNT2 = 0;
 	fcnt_millis = 0;
+
 	/* Turn on interrupt */
 	sei();
 }
@@ -94,7 +94,7 @@ void timer2_start(void)
 	/* Clear OC0 on compare match, set OC0 at BOTTOM, (non-inverting mode) */
 	TCCR1A |= (1<<COM1A1);
 	
-	/*  */
+	/* clear the counter */
 	TCNT1 = 0;
 	
 }
@@ -103,13 +103,14 @@ void timer2_stop(void)
 	/* Clear OC0 on compare match, set OC0 at BOTTOM, (non-inverting mode) */
 	TCCR0 &= (~((1<<COM1A0) | (1<<COM1A1)));
 	
-	/*  */
+	/* make pwm as input */
 	DDRD &= (~(1<<5));
 }
 
 ISR(TIMER2_COMP_vect)
 {
 	fcnt_millis++;
+	PORTD ^= (1<<6);
 	callback();
 }
 long milli(void)

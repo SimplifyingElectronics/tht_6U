@@ -86,26 +86,26 @@ void displayUserInfo(uint16_t);
 
 uint8_t flagTempUpdate = 0, operationStatus;
 
-uint16_t setTemp = 285, currTemp, lastUpdatedTemp, fcntfilter, prevTemp;
+uint16_t setTemp = 285, currTemp, fcntfilter, prevTemp;
 
 uint16_t baud_rate, OCR_value_1, OCR_value_2 = 0;
 
-volatile uint16_t flagDebugMode;
+volatile uint16_t flagDebugMode, lastUpdatedTemp;
 
 float sumError= 0.00, Interlock_Temp_Range = 2.00;
 float lastcurrentPoint = 0.00;
 
 int main(void)
 {
-/*	_delay_ms(50);*/
+	_delay_ms(50);
 	KEY_INIT;
 	KEY_PULLUP_INIT;
 
 	/* EEPROM write */
 	eeprom_init();
  
-// 	 while(USART_init(115200) == USART_ERROR);
-// 	 
+	 while(USART_init(115200) == USART_ERROR);
+  	 
 	 LCD_Init();
 	 
 	 
@@ -118,34 +118,34 @@ int main(void)
 		 LCD_write_string("         = ");
 		 LCD_showvalue(setTemp);
 	 }
-// 	 else
-// 	 {
-// 		 LCD_location(1,1);
-// 		LCD_write_string("          =");
-// 		LCD_location(1,1);
-// 		LCD_write_string("Cur Temp");
-// 		LCD_location(1,12);
-// 		LCD_float(((float) setTemp/10));
-// 		LCD_location(2,1);
-// 		LCD_write_string("         =");
-// 		LCD_location(2,1);
-// 		LCD_write_string("Set Temp");
-// 		LCD_location(2,12);
-// 		LCD_float(((float) setTemp/10));
-// 	 }
-// 	 
-// 	 timer0_init();
-// 	 timer1_init();
-// 	 timer2_init();
-// 	 
-// 	 INTERLOCK_KEY_INIT;
-// 	 RED_LED_INIT;
-// 	 GREEN_LED_INIT;
-// 	 RESET_INTERLOCK_KEY;
-// 	 
-// 	 currTemp = setTemp;
-// 	 
-// 	 long pidUpdateTimeout = milli();
+	 else
+	 {
+		LCD_location(1,1);
+		LCD_write_string("         =");
+		LCD_location(1,1);
+		LCD_write_string("Cur Temp");
+		LCD_location(1,12);
+		LCD_showvalue(((float) setTemp));
+		LCD_location(2,1);
+		LCD_write_string("         =");
+		LCD_location(2,1);
+		LCD_write_string("Set Temp");
+		LCD_location(2,12);
+		LCD_showvalue(((float) setTemp));
+	 }
+	 
+	 timer0_init();
+	 timer1_init();
+	 timer2_init();
+	 
+	 INTERLOCK_KEY_INIT;
+	 RED_LED_INIT;
+	 GREEN_LED_INIT;
+	 RESET_INTERLOCK_KEY;
+	 
+	 currTemp = setTemp;
+ 	 
+	 long pidUpdateTimeout = milli();
 	
     /* Replace with your application code */
     while (1) 
