@@ -36,8 +36,8 @@
 #define TEMP_HIGH							450
 #define TEMP_DEFAULT						285
 
-#define REC_TEMP_HIGH_THRESHOLD				550
-#define REC_TEMP_LOW_THRESHOLD				250
+#define CUR_TEMP_HIGH_THRESHOLD				550
+#define CUR_TEMP_LOW_THRESHOLD				250
 
 #define K_P_LOW								10
 #define K_P_HIGH							7500
@@ -83,14 +83,17 @@ void callback (void);
 void processTempUpdate(void);
 void keyEventUpdate(void);
 void displayUserInfo(uint16_t);
+void displayDebugInfo(float);
 
-uint8_t flagTempUpdate = 0, operationStatus;
+uint8_t operationStatus;
 
 uint16_t setTemp = 285, currTemp, fcntfilter, prevTemp;
 
 uint16_t baud_rate, OCR_value_1, OCR_value_2 = 0;
 
-volatile uint16_t flagDebugMode, lastUpdatedTemp;
+volatile uint16_t flagDebugMode = 0;
+volatile uint16_t lastUpdatedTemp = 0;
+volatile uint16_t flagTempUpdate = 0;
 
 float sumError= 0.00, Interlock_Temp_Range = 2.00;
 float lastcurrentPoint = 0.00;
@@ -150,137 +153,143 @@ int main(void)
     /* Replace with your application code */
     while (1) 
     {
-// 		if(milli() > pidUpdateTimeout + PID_UPDATE_TIME)
-// 		{
-// 			pidUpdateTimeout = milli();
-// 			if(flagTempUpdate)
-// 			{
-// 				flagTempUpdate = 0;
-// 				/*processTempUpdate();*/
-// 				LCD_String_xy(0,15,"''");
-// 			}
-// 		}
+		if(milli() > pidUpdateTimeout + PID_UPDATE_TIME)
+		{
+			pidUpdateTimeout = milli();
+			if(flagTempUpdate)
+			{
+				flagTempUpdate = 0;
+				processTempUpdate();
+				LCD_location(1,16);
+				LCD_write(' ');
+			}
+		}
 // 		keyEventUpdate();	
    }
 }
-// void processTempUpdate(void)
-// {
-// 	uint16_t recTempData = lastUpdatedTemp;
-// 
-// 	if(recTempData == 0x3030) // this is error and print it on lcd
-// 	{
-// 		if(flagDebugMode)
-// 		{
-// 			LCD_String_xy(0,15,"E");
-// 		}
-//  		return;
-//  	}
-// 
-// 	if((recTempData > REC_TEMP_HIGH_THRESHOLD) || (recTempData > REC_TEMP_LOW_THRESHOLD))// this is error and print it on lcd
-// 	{
-// 		if(flagDebugMode)
-// 		{
-// 			LCD_String_xy(0,15,"R");
-// 		}
-// 		return;
-// 	}
-// 
-// 	if((prevTemp != 0) && (((prevTemp -20) > recTempData) || ((prevTemp + 20) < recTempData)))// this is error and print it on lcd
-// 	{
-// 		if(flagDebugMode)
-// 		{
-// 			LCD_String_xy(0,15,"F");
-// 		}
-// 	
-// 		fcntfilter++;
-// 		
-// 		if(fcntfilter > 10)
-// 		{
-// 			fcntfilter = 0;
-// 			prevTemp = recTempData;
-// 		}
-// 		return;
-// 	}
-// else
-// {
-// 	fcntfilter = 0;
-// }
-// 
-// 	if(flagDebugMode)
-// 	{
-// 		LCD_String_xy(0,15,"K");
-// 	}
-// 
-// 	prevTemp = recTempData;
-// 	currTemp = recTempData;
-// 	LCD_Pos_xy(1,11);
-// 	LCD_float(((float) currTemp/10));
-// 
-// 
-// }
+void processTempUpdate(void)
+{
+	lastUpdatedTemp = 310;
+	prevTemp = 280;
+	uint16_t recTempData = lastUpdatedTemp;
+
+	if(recTempData == 0x3030) // this is error and print it on lcd
+	{
+		if(flagDebugMode)
+		{
+			LCD_location(1,16);
+			LCD_write('E');
+		}
+ 		return;
+ 	}
+
+	if((recTempData > CUR_TEMP_HIGH_THRESHOLD) || (recTempData < CUR_TEMP_LOW_THRESHOLD))// this is error and print it on lcd
+	{
+		if(flagDebugMode)
+		{
+			LCD_location(1,16);
+			LCD_write('R');
+		}
+		return;
+	}
+
+	if((prevTemp != 0) && (((prevTemp -20) > recTempData) || ((prevTemp + 20) < recTempData)))// this is error and print it on lcd
+	{
+		if(flagDebugMode)
+		{
+			LCD_location(1,16);
+			LCD_write('F');
+		}
+	
+		fcntfilter++;
+		
+		if(fcntfilter > 10)
+		{
+			fcntfilter = 0;
+			prevTemp = recTempData;
+		}
+		return;
+	}
+else
+{
+	fcntfilter = 0;
+}
+
+	if(flagDebugMode)
+	{
+		LCD_location(1,16);
+		LCD_write('K');
+	}
+
+	prevTemp = recTempData;
+	currTemp = recTempData;
+	LCD_location(2,12);
+	LCD_showvalue(((float) currTemp));
+
+}
 // 
 // void keyEventUpdate(void)
 // {
 // 	
 // }
 // 
-// void displayDebudInfo(float data)
-// {
-// 	LCD_location(1,1);
-// 	
-// 	if((operationStatus == 1) || (operationStatus == 3))
-// 	{ 
-// 		LCD_Char((OCR0 / 100) % 10 + 0x30);
-// 		LCD_Char((OCR0 / 10) % 10 + 0x30);
-// 		LCD_Char((OCR0 / 1) % 10 + 0x30);
-// 	}
-// 	else
-// 	{
-// 		LCD_Char((OCR1A / 100) % 10 + 0x30);
-// 		LCD_Char((OCR1A / 10) % 10 + 0x30);
-// 		LCD_Char((OCR1A / 1) % 10 + 0x30);
-// 	}
-// 	
-// 	LCD_Char(',');
-// 	LCD_location(1,6);
-// 	LCD_Char('>');
-// 	
-// 	if(operationStatus == 1)
-// 	{
-// 		LCD_Char('F');
-// 		LCD_Char('C');
-// 	}
-// 	
-// 	else if(operationStatus == 2)
-// 	{
-// 		LCD_Char('F');
-// 		LCD_Char('H');
-// 	}
-// 	
-// 	else if(operationStatus == 3)
-// 	{
-// 		LCD_Char('P');
-// 		LCD_Char('C');
-// 	}
-// 	
-// 	else if(operationStatus == 4)
-// 	{
-// 		LCD_Char('P');
-// 		LCD_Char('H');
-// 	}
-// 	
-// 	else if(operationStatus == 5)
-// 	{
-// 		LCD_Char(' ');
-// 		LCD_Char('S');
-// 	}
-// 	
-// 	LCD_location(2,1);
-// 	char tampError[16];
-// 	sprintf(tampError, "%3.4f", (double) sumError);
-// 	LCD_Char(tampError);
-// }
-// 
+void displayDebugInfo(float data)
+{
+	LCD_location(1,1);
+	
+	if((operationStatus == 1) || (operationStatus == 3))
+	{ 
+		LCD_write((OCR0 / 100) % 10 + 0x30);
+		LCD_write((OCR0 / 10) % 10 + 0x30);
+		LCD_write((OCR0 / 1) % 10 + 0x30);
+	}
+	else
+	{
+		LCD_write((OCR1A / 100) % 10 + 0x30);
+		LCD_write((OCR1A / 10) % 10 + 0x30);
+		LCD_write((OCR1A / 1) % 10 + 0x30);
+	}
+	
+	LCD_write(',');
+	LCD_location(1,6);
+	LCD_write('>');
+	
+	if(operationStatus == 1)
+	{
+		LCD_write('F');
+		LCD_write('C');
+	}
+	
+	else if(operationStatus == 2)
+	{
+		LCD_write('F');
+		LCD_write('H');
+	}
+	
+	else if(operationStatus == 3)
+	{
+		LCD_write('P');
+		LCD_write('C');
+	}
+	
+	else if(operationStatus == 4)
+	{
+		LCD_write('P');
+		LCD_write('H');
+	}
+	
+	else if(operationStatus == 5)
+	{
+		LCD_write(' ');
+		LCD_write('S');
+	}
+	
+	LCD_location(2,1);
+	char tempError[10];
+	sprintf(tempError, "%3.4f", (double) sumError);
+	LCD_write_string(tempError);
+}
+ 
 // float pid_Controller(float setPoint, float currentPoint, float Kp, float Ki, float Kd)
 // {
 // 	float error = 0;

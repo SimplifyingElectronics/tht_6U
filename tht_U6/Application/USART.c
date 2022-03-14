@@ -12,7 +12,7 @@ unsigned char USART_init(uint32_t baud_rate)
 	/* Initialize Q */
 	UQFront = UQEnd = -1;
 	
-	uint16_t ubrrvalue = (16000000/(baud_rate * 8) - 1);
+	uint16_t ubrrvalue = (F_CPU/(baud_rate * 8) - 1);
 	if(ubrrvalue <= 0)
 	{
 		return USART_ERROR;
@@ -20,8 +20,8 @@ unsigned char USART_init(uint32_t baud_rate)
 	
 	else
 	{		
-		UBRRH = (baud_rate >> 8);
-		UBRRL = baud_rate;
+		UBRRH = (unsigned char)(ubrrvalue >> 8);
+		UBRRL = (unsigned char)(ubrrvalue);
 	
 		UCSRC |= (1<<URSEL);
 		UCSRC |= ((3<<UCSZ0));

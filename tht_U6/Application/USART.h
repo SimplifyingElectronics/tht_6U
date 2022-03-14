@@ -17,7 +17,9 @@
 #define USART_ERROR					0
 #define RECEIVE_BUFFER_SIZE			90
 
-int8_t UQFront, UQEnd;
+volatile int8_t UQFront;
+
+volatile int8_t UQEnd;
 
 uint16_t baud_rate;
 
