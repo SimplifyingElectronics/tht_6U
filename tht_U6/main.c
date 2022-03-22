@@ -69,6 +69,7 @@ uint16_t setKd = 5;
 #define GREEN_LED_ON						PORTB |= (1<<2)
 #define GREEN_LED_OFF						PORTB &= (~(1<<2))
 #define PID_UPDATE_TIME						50
+#define Interlock_Temp_Range				2
 
 /*#define IS_KEY_INC_PRESSED					((PINA & (1<<INC_KEY) == 0))*/
 // #define IS_KEY_DEC_PRESSED
@@ -85,17 +86,17 @@ void keyEventUpdate(void);
 void displayUserInfo(uint16_t);
 void displayDebugInfo(float);
 
-uint8_t operationStatus;
+uint8_t operationStatus, OCR_value_2 = 0;
 
 uint16_t setTemp = 285, currTemp, fcntfilter, prevTemp;
 
-uint16_t baud_rate, OCR_value_1, OCR_value_2 = 0;
+uint16_t baud_rate, OCR_value_1 = 0;
 
 volatile uint16_t flagDebugMode = 0;
 volatile uint16_t lastUpdatedTemp = 0;
 volatile uint16_t flagTempUpdate = 0;
 
-float sumError= 0.00, Interlock_Temp_Range = 2.00;
+float sumError= 0.00;
 float lastcurrentPoint = 0.00;
 
 int main(void)
@@ -299,7 +300,7 @@ void displayDebugInfo(float data)
 // 
 // 	error = ((float)(setPoint - currentPoint));
 // 
-// 	if((error < ((float)Interlock_Temp_Range)) && (error > ((float)-Interlock_Temp_Range)))
+// 	if((error < ((float)Interlock_Temp_Range)) && (error > ((float)(-Interlock_Temp_Range))))
 // 	{
 // 		SET_INTERLOCK_KEY;
 // 		RED_LED_OFF;
@@ -318,18 +319,18 @@ void displayDebugInfo(float data)
 // 		timer1_stop();
 // 		OCR_value_2 = 255;
 // 		OCR0 = OCR_value_2;
-// 		timer0_start();
 // 		sumError = 0;
+// 		timer0_start();
 // 		operationStatus = 1;
 // 	}
 // 
-// 	if(error > 1)
+// 	else if(error > 1)
 // 	{
 // 		timer0_stop();
 // 		OCR_value_1 = 255;
 // 		OCR1A = OCR_value_1;
+//		sumError = 0;
 // 		timer1_start();
-// 		sumError = 0;
 // 		operationStatus = 2;
 // 
 // 	}
@@ -383,9 +384,9 @@ void displayDebugInfo(float data)
 // 			OCR0 = OCR_value_2;
 // 			OCR_value_1 = 0;
 // 			OCR1A = OCR_value_1;
+// 			sumError = 0;
 // 			timer0_stop();
 // 			timer1_stop();
-// 			sumError = 0;
 // 			operationStatus = 5;
 // 		}
 // 	}
@@ -412,7 +413,7 @@ void displayUserInfo(uint16_t data)
 // 		LCD_Clear();
 // 		_delay_ms(50);
 // 		
-// 		while((!IS_INC_KEY_RELEASED) && (!IS_INC_KEY_RELEASED));
+// 		while((!IS_INC_KEY_RELEASED) && (!IS_DEC_KEY_RELEASED));
 // 		
 // 		LCD_location(2,1);
 // 		LCD_String("V - ");
