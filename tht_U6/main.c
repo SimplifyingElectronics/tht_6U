@@ -69,7 +69,7 @@ uint16_t setKd = 5;
 #define GREEN_LED_ON						PORTB |= (1<<2)
 #define GREEN_LED_OFF						PORTB &= (~(1<<2))
 #define PID_UPDATE_TIME						50
-#define Interlock_Temp_Range				2
+#define Interlock_Temp_Range				1
 
 /*#define IS_KEY_INC_PRESSED					((PINA & (1<<INC_KEY) == 0))*/
 // #define IS_KEY_DEC_PRESSED
@@ -224,8 +224,17 @@ else
 
 	prevTemp = recTempData;
 	currTemp = recTempData;
-	LCD_location(2,12);
+	LCD_location(1,12);
 	LCD_showvalue(((float) currTemp));
+	
+// 	if(flagDebugMode)
+// 	{
+// 		displayDebugInfo(float (setPoint/10), float (currentPoint/10), float (Kp/10), float (Ki/10), float (Kd/10));
+// 	}
+// 	else
+// 	{
+// 		pid_Controller(float (setPoint/10), float (currentPoint/10), float (Kp/10), float (Ki/10), float (Kd/10));
+// 	}
 
 }
 // 
@@ -390,6 +399,8 @@ void displayDebugInfo(float data)
 // 			operationStatus = 5;
 // 		}
 // 	}
+// lastcurrentPoint = currentpoint;
+// return (error);
 // }
 void displayUserInfo(uint16_t data)
 {
