@@ -23,7 +23,7 @@ void LCD_Command(unsigned char cmnd)
 	_delay_ms(3);
 }
 
-void LCD_Char (unsigned char char_data)
+void LCD_Char(unsigned char char_data)
 {
 	/* send character to LCD */
 	LCD_Data_Port= char_data;
@@ -88,7 +88,7 @@ void LCD_Init (void)
 	_delay_us(50);	
 }
 
-void LCD_String (char *str)		
+void LCD_String(char *str)		
 {
 	int i;
 	for(i=0;str[i]!=0;i++)		

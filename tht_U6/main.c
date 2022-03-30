@@ -9,11 +9,14 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdio.h>
+#include <avr/eeprom.h>
 
 #include "USART.h"
 #include "eeprom.h"
 #include "Timer.h"
 #include "LCD_16x2.h"
+
+#define VERSION					16
 
 #define INC_KEY					2
 #define DEC_KEY					3
@@ -22,7 +25,14 @@
 #define KEY_INIT				DDRA &= (~((1<<INC_KEY) | (1<<DEC_KEY) | (1<<PROG_KEY) | (1<<ENTER_KEY)))
 #define KEY_PULLUP_INIT			PORTA |= ((1<<INC_KEY) | (1<<DEC_KEY) | (1<<PROG_KEY) | (1<<ENTER_KEY))
 
-#include <avr/eeprom.h>
+#define IS_KEY_INC_PRESSED					((PINA & (1<<INC_KEY)) == 0)
+#define IS_KEY_INC_RELEASED					((PINA & (1<<INC_KEY)) != 0)
+#define IS_KEY_PROG_PRESSED					((PINA & (1<<PROG_KEY)) == 0)
+#define IS_KEY_PROG_RELEASED				((PINA & (1<<PROG_KEY)) != 0)
+#define IS_KEY_DEC_PRESSED					((PINA & (1<<DEC_KEY)) == 0)		
+#define IS_KEY_DEC_RELEASED					((PINA & (1<<DEC_KEY)) != 0)
+#define IS_KEY_ENTER_PRESSED				((PINA & (1<<ENTER_KEY)) == 0)
+#define IS_KEY_ENTER_RELEASED				((PINA & (1<<ENTER_KEY)) != 0)
 
 #define EEPROM_CHECKSUM						7621
 #define EEPROM_CHECKSUM_ADD					(uint16_t *)110
@@ -71,18 +81,9 @@ uint16_t setKd = 5;
 #define PID_UPDATE_TIME						50
 #define Interlock_Temp_Range				1
 
-/*#define IS_KEY_INC_PRESSED					((PINA & (1<<INC_KEY) == 0))*/
-// #define IS_KEY_DEC_PRESSED
-// #define IS_KEY_PROG_PRESSED
-// #define IS_KEY_ENTER_PRESSED
-// #define IS_KEY_INC_RELEASED
-// #define IS_KEY_DEC_RELEASED
-// #define IS_KEY_PROG_RELEASED
-// #define IS_KEY_ENTER_RELEASED
-
 void callback (void);
 void processTempUpdate(void);
-void keyEventUpdate(void);
+void keyEventExecute(void);
 void displayUserInfo(uint16_t);
 void displayDebugInfo(float);
 
@@ -113,59 +114,59 @@ int main(void)
 	 LCD_Init();
 	 
 	 
-	 if(flagDebugMode)
-	 {
-		 LCD_location(1,1);
-		 LCD_write_string("         = ");
-		 LCD_showvalue(setTemp);
-		 LCD_location(2,1);
-		 LCD_write_string("         = ");
-		 LCD_showvalue(setTemp);
-	 }
-	 else
-	 {
-		LCD_location(1,1);
-		LCD_write_string("         =");
-		LCD_location(1,1);
-		LCD_write_string("Cur Temp");
-		LCD_location(1,12);
-		LCD_showvalue(((float) setTemp));
-		LCD_location(2,1);
-		LCD_write_string("         =");
-		LCD_location(2,1);
-		LCD_write_string("Set Temp");
-		LCD_location(2,12);
-		LCD_showvalue(((float) setTemp));
-	 }
-	 
-	 timer0_init();
-	 timer1_init();
-	 timer2_init();
-	 
-	 INTERLOCK_KEY_INIT;
-	 RED_LED_INIT;
-	 GREEN_LED_INIT;
-	 RESET_INTERLOCK_KEY;
-	 
-	 currTemp = setTemp;
- 	 
-	 long pidUpdateTimeout = milli();
+// 	 if(flagDebugMode)
+// 	 {
+// 		 LCD_location(1,1);
+// 		 LCD_write_string("         = ");
+// 		 LCD_showvalue(setTemp);
+// 		 LCD_location(2,1);
+// 		 LCD_write_string("         = ");
+// 		 LCD_showvalue(setTemp);
+// 	 }
+// 	 else
+// 	 {
+// 		LCD_location(1,1);
+// 		LCD_write_string("         =");
+// 		LCD_location(1,1);
+// 		LCD_write_string("Cur Temp");
+// 		LCD_location(1,12);
+// 		LCD_showvalue(((float) setTemp));
+// 		LCD_location(2,1);
+// 		LCD_write_string("         =");
+// 		LCD_location(2,1);
+// 		LCD_write_string("Set Temp");
+// 		LCD_location(2,12);
+// 		LCD_showvalue(((float) setTemp));
+// 	 }
+// 	 
+// 	 timer0_init();
+// 	 timer1_init();
+// 	 timer2_init();
+// 	 
+// 	 INTERLOCK_KEY_INIT;
+// 	 RED_LED_INIT;
+// 	 GREEN_LED_INIT;
+// 	 RESET_INTERLOCK_KEY;
+// 	 
+// 	 currTemp = setTemp;
+//  	 
+// 	 long pidUpdateTimeout = milli();
 	
     /* Replace with your application code */
     while (1) 
     {
-		if(milli() > pidUpdateTimeout + PID_UPDATE_TIME)
-		{
-			pidUpdateTimeout = milli();
-			if(flagTempUpdate)
-			{
-				flagTempUpdate = 0;
-				processTempUpdate();
-				LCD_location(1,16);
-				LCD_write(' ');
-			}
-		}
-// 		keyEventUpdate();	
+// 		if(milli() > pidUpdateTimeout + PID_UPDATE_TIME)
+// 		{
+// 			pidUpdateTimeout = milli();
+// 			if(flagTempUpdate)
+// 			{
+// 				flagTempUpdate = 0;
+// 				processTempUpdate();
+// 				LCD_location(1,16);
+// 				LCD_write(' ');
+// 			}
+// 		}
+ 		keyEventExecute();	
    }
 }
 void processTempUpdate(void)
@@ -237,12 +238,7 @@ else
 // 	}
 
 }
-// 
-// void keyEventUpdate(void)
-// {
-// 	
-// }
-// 
+ 
 void displayDebugInfo(float data)
 {
 	LCD_location(1,1);
@@ -415,72 +411,164 @@ void displayUserInfo(uint16_t data)
 	LCD_write(((data / 1) % 10) + 0x30);
 	LCD_Char(' ');
 }
-// void keyEventUpdate(void)
-// {
-// 	if((IS_INC_KEY_PRESSED) && (IS_DEC_KEY_PRESSED))
-// 	{
+void keyEventExecute(void)
+{
+	if((IS_KEY_INC_PRESSED) && (IS_KEY_DEC_PRESSED))
+	{
 // 		timer0_stop();
 // 		timer1_stop();
-// 		LCD_Clear();
-// 		_delay_ms(50);
-// 		
-// 		while((!IS_INC_KEY_RELEASED) && (!IS_DEC_KEY_RELEASED));
-// 		
-// 		LCD_location(2,1);
-// 		LCD_String("V - ");
-// 		LCD_Char(((VERSION / 100) % 10) + 0x30);
-// 		LCD_Char(".");
-// 		LCD_Char(((VERSION / 100) % 10) + 0x30);
-// 		LCD_Char(".");
-// 		LCD_Char(((VERSION / 100) % 10) + 0x30);
-// 		LCD_location(1,1);
-// 		LCD_String("Gain P = ");
-// 		displayUserInfo(setKp);
-// 	}
-// 	
-// 	uint8_t fcntSpeedInc = 0, fcntSpeedDec = 0;
-// 	
-// 	while(IS_KEY_PROGRAM_RELEASED)
-// 	{
-// 		if(IS_KEY_INC_PRESSED)
-// 		{
-// 			fcntSpeedDec = 0;
-// 			setKp = setKp + 1 + fcntSpeedInc++;
-// 			
-// 			if(setKp > K_P_HIGH)
-// 				setKp = K_P_HIGH;
-// 			
-// 			LCD_location(1,10);
-// 			displayUserInfo(setKp);
-// 			_delay_ms(250);
-// 		}
-// 		
-// 		else if(IS_KEY_DEC_PRESSED)
-// 		{
-// 			fcntSpeedInc = 0;
-// 			if(setKp > (K_P_LOW + 1 + fcntSpeedInc))
-// 			setKp = setKp - 1 - fcntSpeedInc++;
-// 			
-// 			else
-// 			setKp = K_P_LOW;
-// 			
-// 			LCD_location(1,10);
-// 			displayUserInfo(setKp);
-// 			_delay_ms(250);
-// 		}
-// 		
-// 		if(IS_KEY_INC_PRESSED)
-// 		fcntSpeedInc = 0;
-// 		
-// 		else if(IS_KEY_DEC_PRESSED)
-// 		fcntSpeedDec = 0;
-// 		
-// 		_delay_ms(250);
-// 		
-// 		while(IS_KEY_PROGRAM_PRESSED);
-// 	}
-// }
-// 
+		LCD_Clear();
+		_delay_ms(50);
+		
+		while((!IS_KEY_INC_RELEASED) && (!IS_KEY_DEC_RELEASED));
+		
+		LCD_location(2,1);
+		LCD_write_string("V - ");
+		LCD_write(((VERSION / 100) % 10) + 0x30);
+		LCD_write_string(".");
+		LCD_write(((VERSION / 10) % 10) + 0x30);
+		LCD_write_string(".");
+		LCD_write(((VERSION / 1) % 10) + 0x30);
+		LCD_location(1,1);
+		LCD_write_string("Gain P = ");
+		displayUserInfo(setKp);
+		
+		uint8_t fcntSpeedInc = 0, fcntSpeedDec = 0;
+		
+		while(IS_KEY_PROG_RELEASED)
+		{
+			if(IS_KEY_INC_PRESSED)
+			{
+				fcntSpeedDec = 0;
+				setKp = setKp + 1 + fcntSpeedInc++;
+			
+				if(setKp > K_P_HIGH)
+					setKp = K_P_HIGH;
+			
+				LCD_location(1,10);
+				displayUserInfo(setKp);
+				_delay_ms(250);
+			}
+		
+			else if(IS_KEY_DEC_PRESSED)
+			{
+				fcntSpeedInc = 0;
+				if(setKp > (K_P_LOW + 1 + fcntSpeedDec))
+				setKp = setKp - 1 - fcntSpeedDec++;
+			
+				else
+				setKp = K_P_LOW;
+			
+				LCD_location(1,10);
+				displayUserInfo(setKp);
+				_delay_ms(250);
+			}
+		
+			if(IS_KEY_INC_RELEASED)
+			fcntSpeedInc = 0;
+			
+			if(IS_KEY_DEC_RELEASED)
+			fcntSpeedDec = 0;
+		}
+		
+		eeprom_write_word(EEPROM_K_P_ADD, setKp);
+		_delay_ms(50);
+		while(IS_KEY_PROG_PRESSED);
+		
+		fcntSpeedInc = 0, fcntSpeedDec = 0;
+		
+		LCD_location(1,1);
+		LCD_write_string("Gain I = ");
+		displayUserInfo(setKi);
+		
+		while(IS_KEY_PROG_RELEASED)
+		{
+			if(IS_KEY_INC_PRESSED)
+			{
+				fcntSpeedDec = 0;
+				setKi = setKi + 1 + fcntSpeedInc++;
+				
+				if(setKi > K_I_HIGH)
+				setKi = K_I_HIGH;
+				
+				LCD_location(1,10);
+				displayUserInfo(setKi);
+				_delay_ms(250);
+			}
+			
+			else if(IS_KEY_DEC_PRESSED)
+			{
+				fcntSpeedInc = 0;
+				if(setKi > (K_I_LOW + 1 + fcntSpeedDec))
+				setKi = setKi - 1 - fcntSpeedDec++;
+				
+				else
+				setKi = K_I_LOW;
+				
+				LCD_location(1,10);
+				displayUserInfo(setKi);
+				_delay_ms(250);
+			}
+			
+			if(IS_KEY_INC_RELEASED)
+			fcntSpeedInc = 0;
+			
+			if(IS_KEY_DEC_RELEASED)
+			fcntSpeedDec = 0;
+		}
+		
+		eeprom_write_word(EEPROM_K_I_ADD, setKi);
+		_delay_ms(250);
+		while(IS_KEY_PROG_PRESSED);
+		
+		fcntSpeedInc = 0, fcntSpeedDec = 0;
+		
+		LCD_location(1,1);
+		LCD_write_string("Gain D = ");
+		displayUserInfo(setKd);
+		
+		while(IS_KEY_PROG_RELEASED)
+		{
+			if(IS_KEY_INC_PRESSED)
+			{
+				fcntSpeedDec = 0;
+				setKd = setKd + 1 + fcntSpeedInc++;
+				
+				if(setKd > K_D_HIGH)
+				setKd = K_D_HIGH;
+				
+				LCD_location(1,10);
+				displayUserInfo(setKd);
+				_delay_ms(250);
+			}
+			
+			else if(IS_KEY_DEC_PRESSED)
+			{
+				fcntSpeedInc = 0;
+				if(setKd > (K_D_LOW + 1 + fcntSpeedDec))
+				setKd = setKd - 1 - fcntSpeedDec++;
+				
+				else
+				setKi = K_D_LOW;
+				
+				LCD_location(1,10);
+				displayUserInfo(setKd);
+				_delay_ms(250);
+			}
+			
+			if(IS_KEY_INC_RELEASED)
+			fcntSpeedInc = 0;
+			
+			if(IS_KEY_DEC_RELEASED)
+			fcntSpeedDec = 0;
+		}
+		
+		eeprom_write_word(EEPROM_K_D_ADD, setKd);
+		_delay_ms(250);
+		while(IS_KEY_PROG_PRESSED);
+	}
+}
+
 void eeprom_init(void)
 {
 // 	if((eeprom_read_word(EEPROM_CHECKSUM_ADD)) == EEPROM_CHECKSUM)
