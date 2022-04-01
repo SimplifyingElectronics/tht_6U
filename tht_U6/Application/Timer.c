@@ -39,7 +39,7 @@ void timer0_stop(void)
 	TCCR0 &= (~((1<<COM00) | (1<<COM01)));
 	
 	/*  */
-	DDRB &= (~(1<<3));	
+	PORTB &= (~(1<<3));	
 }
 
 void timer1_init(void)
@@ -70,10 +70,10 @@ void timer1_start(void)
 void timer1_stop(void)
 {
 	/* Clear OC0 on compare match, set OC0 at BOTTOM, (non-inverting mode) */
-	TCCR0 &= (~((1<<COM1A0) | (1<<COM1A1)));
+	TCCR1A &= (~((1<<COM1A0) | (1<<COM1A1)));
 	
 	/*  */
-	DDRD &= (~(1<<5));
+	PORTD &= (~(1<<5));
 }
 
 void timer2_init(void)

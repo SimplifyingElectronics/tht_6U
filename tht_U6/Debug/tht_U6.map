@@ -91,8 +91,6 @@ Discarded input sections
                 0x00000000       0x28 Application/LCD_16x2.o
  .text.LCD_float
                 0x00000000       0x78 Application/LCD_16x2.o
- .text.LCD_showvalue
-                0x00000000       0xdc Application/LCD_16x2.o
  .text          0x00000000        0x0 Application/Timer.o
  .data          0x00000000        0x0 Application/Timer.o
  .bss           0x00000000        0x0 Application/Timer.o
@@ -146,7 +144,6 @@ Discarded input sections
                 0x00000000        0x2 main.o
  .bss.OCR_value_2
                 0x00000000        0x1 main.o
- COMMON         0x00000000        0x7 main.o
  .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fixsfsi.o)
  .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fixsfsi.o)
  .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fixsfsi.o)
@@ -511,7 +508,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0x8e6
+.text           0x00000000      0xb9e
  *(.vectors)
  .vectors       0x00000000       0x54 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5/crtatmega16.o
                 0x00000000                __vector_default
@@ -613,44 +610,47 @@ END GROUP
  .text.LCD_Clear
                 0x000001e8        0xe Application/LCD_16x2.o
                 0x000001e8                LCD_Clear
+ .text.LCD_showvalue
+                0x000001f6       0xdc Application/LCD_16x2.o
+                0x000001f6                LCD_showvalue
  .text.__vector_3
-                0x000001f6       0x76 Application/Timer.o
-                0x000001f6                __vector_3
+                0x000002d2       0x76 Application/Timer.o
+                0x000002d2                __vector_3
  .text.USART_init
-                0x0000026c       0x62 Application/USART.o
-                0x0000026c                USART_init
+                0x00000348       0x62 Application/USART.o
+                0x00000348                USART_init
  .text.displayUserInfo
-                0x000002ce      0x148 main.o
-                0x000002ce                displayUserInfo
+                0x000003aa      0x148 main.o
+                0x000003aa                displayUserInfo
  .text.keyEventExecute
-                0x00000416      0x386 main.o
-                0x00000416                keyEventExecute
+                0x000004f2      0x562 main.o
+                0x000004f2                keyEventExecute
  .text.eeprom_init
-                0x0000079c       0x82 main.o
-                0x0000079c                eeprom_init
- .text.main     0x0000081e       0x3c main.o
-                0x0000081e                main
+                0x00000a54       0x82 main.o
+                0x00000a54                eeprom_init
+ .text.main     0x00000ad6       0x3c main.o
+                0x00000ad6                main
  .text.callback
-                0x0000085a        0x2 main.o
-                0x0000085a                callback
+                0x00000b12        0x2 main.o
+                0x00000b12                callback
  .text.libgcc.div
-                0x0000085c       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_udivmodsi4.o)
-                0x0000085c                __udivmodsi4
+                0x00000b14       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_udivmodsi4.o)
+                0x00000b14                __udivmodsi4
  .text.libgcc.mul
-                0x000008a0       0x1e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
-                0x000008a0                __umulhisi3
+                0x00000b58       0x1e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
+                0x00000b58                __umulhisi3
  .text.avr-libc
-                0x000008be        0xa C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
-                0x000008be                eeprom_write_word
+                0x00000b76        0xa C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
+                0x00000b76                eeprom_write_word
  .text.avr-libc
-                0x000008c8       0x1a C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
-                0x000008c8                eeprom_write_byte
-                0x000008ca                eeprom_write_r18
-                0x000008e2                . = ALIGN (0x2)
+                0x00000b80       0x1a C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
+                0x00000b80                eeprom_write_byte
+                0x00000b82                eeprom_write_r18
+                0x00000b9a                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x000008e2        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
-                0x000008e2                _exit
-                0x000008e2                exit
+ .fini9         0x00000b9a        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
+                0x00000b9a                _exit
+                0x00000b9a                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -669,11 +669,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x000008e2        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
+ .fini0         0x00000b9a        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x000008e6                _etext = .
+                0x00000b9e                _etext = .
 
-.data           0x00800060       0x32 load address 0x000008e6
+.data           0x00800060       0x56 load address 0x00000b9e
                 0x00800060                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -687,39 +687,44 @@ END GROUP
  *(.rodata)
  *(.rodata*)
  .rodata.str1.1
-                0x00800066       0x2b main.o
+                0x00800066       0x4f main.o
  *(.gnu.linkonce.r*)
-                0x00800092                . = ALIGN (0x2)
- *fill*         0x00800091        0x1 
-                0x00800092                _edata = .
-                0x00800092                PROVIDE (__data_end, .)
+                0x008000b6                . = ALIGN (0x2)
+ *fill*         0x008000b5        0x1 
+                0x008000b6                _edata = .
+                0x008000b6                PROVIDE (__data_end, .)
 
-.bss            0x00800092       0x66
-                0x00800092                PROVIDE (__bss_start, .)
+.bss            0x008000b6       0x6d
+                0x008000b6                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
  .bss.flagDebugMode
-                0x00800092        0x2 main.o
-                0x00800092                flagDebugMode
- .bss.setKi     0x00800094        0x2 main.o
-                0x00800094                setKi
+                0x008000b6        0x2 main.o
+                0x008000b6                flagDebugMode
+ .bss.setKi     0x008000b8        0x2 main.o
+                0x008000b8                setKi
  *(COMMON)
- COMMON         0x00800096        0x4 Application/Timer.o
-                0x00800096                fcnt_millis
- COMMON         0x0080009a       0x5e Application/USART.o
-                0x0080009a                baud_rate
-                0x0080009c                UQFront
-                0x0080009d                UQEnd
-                0x0080009e                URbuff
-                0x008000f8                PROVIDE (__bss_end, .)
-                0x000008e6                __data_load_start = LOADADDR (.data)
-                0x00000918                __data_load_end = (__data_load_start + SIZEOF (.data))
+ COMMON         0x008000ba        0x4 Application/Timer.o
+                0x008000ba                fcnt_millis
+ COMMON         0x008000be       0x5e Application/USART.o
+                0x008000be                baud_rate
+                0x008000c0                UQFront
+                0x008000c1                UQEnd
+                0x008000c2                URbuff
+ COMMON         0x0080011c        0x7 main.o
+                0x0080011c                fcntfilter
+                0x0080011e                currTemp
+                0x00800120                prevTemp
+                0x00800122                operationStatus
+                0x00800123                PROVIDE (__bss_end, .)
+                0x00000b9e                __data_load_start = LOADADDR (.data)
+                0x00000bf4                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x008000f8        0x0
+.noinit         0x00800123        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
  *(.noinit*)
                 [!provide]                PROVIDE (__noinit_end, .)
-                0x008000f8                _end = .
+                0x00800123                _end = .
                 [!provide]                PROVIDE (__heap_start, .)
 
 .eeprom         0x00810000        0x0
@@ -805,35 +810,35 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x1e72
+.debug_info     0x00000000     0x21a8
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x52e C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5/crtatmega16.o
  .debug_info    0x0000052e      0x77a Application/LCD_16x2.o
  .debug_info    0x00000ca8      0x19b Application/Timer.o
  .debug_info    0x00000e43      0x24a Application/USART.o
- .debug_info    0x0000108d      0xcb5 main.o
- .debug_info    0x00001d42       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
- .debug_info    0x00001dda       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
+ .debug_info    0x0000108d      0xfeb main.o
+ .debug_info    0x00002078       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
+ .debug_info    0x00002110       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
 
-.debug_abbrev   0x00000000      0xab6
+.debug_abbrev   0x00000000      0xac1
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x4e7 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5/crtatmega16.o
  .debug_abbrev  0x000004e7      0x1ba Application/LCD_16x2.o
  .debug_abbrev  0x000006a1       0xb3 Application/Timer.o
  .debug_abbrev  0x00000754      0x13b Application/USART.o
- .debug_abbrev  0x0000088f      0x1ff main.o
- .debug_abbrev  0x00000a8e       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
- .debug_abbrev  0x00000aa2       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
+ .debug_abbrev  0x0000088f      0x20a main.o
+ .debug_abbrev  0x00000a99       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
+ .debug_abbrev  0x00000aad       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
 
-.debug_line     0x00000000     0x1110
+.debug_line     0x00000000     0x127a
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x116 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5/crtatmega16.o
  .debug_line    0x00000116      0x3d7 Application/LCD_16x2.o
  .debug_line    0x000004ed      0x22a Application/Timer.o
  .debug_line    0x00000717      0x21b Application/USART.o
- .debug_line    0x00000932      0x6eb main.o
- .debug_line    0x0000101d       0x5b C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
- .debug_line    0x00001078       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
+ .debug_line    0x00000932      0x855 main.o
+ .debug_line    0x00001187       0x5b C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_word.o)
+ .debug_line    0x000011e2       0x98 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.6.364/gcc/dev/atmega16/avr5\libatmega16.a(eewr_byte.o)
 
 .debug_frame    0x00000000      0x3a8
  *(.debug_frame)
@@ -854,12 +859,12 @@ END GROUP
  .debug_str     0x00000544      0x150 main.o
                                 0x39f (size before relaxing)
 
-.debug_loc      0x00000000     0x1062
+.debug_loc      0x00000000     0x121c
  *(.debug_loc)
  .debug_loc     0x00000000      0x7fa Application/LCD_16x2.o
  .debug_loc     0x000007fa       0xcb Application/Timer.o
  .debug_loc     0x000008c5      0x160 Application/USART.o
- .debug_loc     0x00000a25      0x63d main.o
+ .debug_loc     0x00000a25      0x7f7 main.o
 
 .debug_macinfo
  *(.debug_macinfo)

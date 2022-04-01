@@ -566,6 +566,88 @@ void keyEventExecute(void)
 		eeprom_write_word(EEPROM_K_D_ADD, setKd);
 		_delay_ms(250);
 		while(IS_KEY_PROG_PRESSED);
+		
+		 if(flagDebugMode)
+		 {
+			 LCD_location(1,1);
+			 LCD_write_string("         = ");
+			 LCD_showvalue(setTemp);
+			 LCD_location(2,1);
+			 LCD_write_string("         = ");
+			 LCD_showvalue(currTemp);
+		 }
+		 else
+		 {
+			LCD_location(1,1);
+			LCD_write_string("Set Temp = ");
+			LCD_showvalue(setTemp);
+			LCD_location(2,1);
+			LCD_write_string("Cur Temp = ");
+			LCD_showvalue(currTemp);
+		 }
+	}
+	
+	if(IS_KEY_PROG_PRESSED)
+	{
+// 		timer0_stop();
+// 		timer1_stop();
+		_delay_ms(50);
+		
+		while((!IS_KEY_INC_RELEASED) && (!IS_KEY_DEC_RELEASED));
+		
+		LCD_location(2,12);
+		displayUserInfo(setTemp);
+		LCD_location(2,16);
+		LCD_write('<');
+				
+		uint8_t fcntSpeedInc = 0, fcntSpeedDec = 0;
+		
+		while(IS_KEY_ENTER_RELEASED)
+		{
+			if(IS_KEY_INC_PRESSED)
+			{
+				fcntSpeedDec = 0;
+				setTemp = setTemp + 1 + fcntSpeedInc++;
+				
+				if(setTemp > TEMP_HIGH)
+				setTemp = TEMP_HIGH;
+				
+				LCD_location(2,12);
+				displayUserInfo(setTemp);
+				LCD_location(2,16);
+				LCD_write('<');
+				_delay_ms(250);
+			}
+			
+			else if(IS_KEY_DEC_PRESSED)
+			{
+				fcntSpeedInc = 0;
+				if(setTemp > (TEMP_LOW + 1 + fcntSpeedDec))
+				setTemp = setTemp - 1 - fcntSpeedDec++;
+				
+				else
+				setTemp = TEMP_LOW;
+				
+				LCD_location(2,12);
+				displayUserInfo(setTemp);
+				LCD_location(2,16);
+				LCD_write('<');
+				_delay_ms(250);
+			}
+			
+			if(IS_KEY_INC_RELEASED)
+			fcntSpeedInc = 0;
+			
+			if(IS_KEY_DEC_RELEASED)
+			fcntSpeedDec = 0;
+		}
+		
+		eeprom_write_word(EEPROM_TEMP_ADD, setTemp);
+		_delay_ms(50);
+		while(IS_KEY_ENTER_PRESSED);
+		
+		LCD_location(2,16);
+		LCD_write(' ');
 	}
 }
 
