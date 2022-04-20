@@ -62,6 +62,28 @@ void UWriteData_Nbytes(uint8_t *str, uint8_t NBytes)
 	
 }
 
+ISR(USART_RXC_vect)
+{
+	char data = UDR;
+	
+	if(((UQEnd == (RECEIVE_BUFFER_SIZE - 1)) && (UQFront == 0)) || ((UQEnd+1)==UQFront))
+	{
+		UQFront++;
+		
+		if(UQFront==RECEIVE_BUFFER_SIZE) UQFront = 0;
+	}
+	
+	if(UQEnd==(RECEIVE_BUFFER_SIZE-1)) UQEnd = 0;
+	
+	else
+	UQEnd++;
+	
+	URbuff[UQEnd] = data;
+	
+	if(UQFront == -1) UQFront = 0;
+	
+}
+
 char UReadData(void)
 {
 	char data;
