@@ -21,7 +21,6 @@ volatile int8_t UQFront;
 
 volatile int8_t UQEnd;
 volatile char URbuff[RECEIVE_BUFFER_SIZE];
-
 uint16_t baud_rate;
 
 volatile char URbuff[RECEIVE_BUFFER_SIZE];

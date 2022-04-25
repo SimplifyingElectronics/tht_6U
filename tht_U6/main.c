@@ -88,8 +88,11 @@ void displayUserInfo(uint16_t);
 void displayDebugInfo(float);
 
 uint8_t operationStatus, OCR_value_2 = 0;
+uint8_t high;
+uint8_t low;
 
 uint16_t setTemp = 285, currTemp, fcntfilter, prevTemp;
+uint16_t temp1;
 
 uint16_t baud_rate, OCR_value_1 = 0;
 
@@ -99,10 +102,10 @@ volatile uint16_t flagTempUpdate = 0;
 
 float sumError= 0.00;
 float lastcurrentPoint = 0.00;
-
+extern uint8_t flg;
 int main(void)
 {
-	_delay_ms(50);
+/*	_delay_ms(50);*/
 	KEY_INIT;
 	KEY_PULLUP_INIT;
 
@@ -112,7 +115,8 @@ int main(void)
 	 while(USART_init(115200) == USART_ERROR);
   	 
 	 LCD_Init();
-	 
+
+	UWriteData_string("\n\t Echo Test ");
 	 
 // 	 if(flagDebugMode)
 // 	 {
@@ -141,7 +145,7 @@ int main(void)
 // 	 
 // 	 timer0_init();
 // 	 timer1_init();
-// 	 timer2_init();
+	 timer2_init();
 // 	 
 // 	 INTERLOCK_KEY_INIT;
 // 	 RED_LED_INIT;
@@ -153,8 +157,27 @@ int main(void)
 // 	 long pidUpdateTimeout = milli();
 	
     /* Replace with your application code */
+	
     while (1) 
     {
+		
+		_delay_ms(400);
+// 		if(UAvailableData() % 2)
+// 		{
+// 			UReadData();
+// 		}
+// 		
+// 		if(UAvailableData() >= 2)
+// 		{
+// 			high = UReadData();
+// 			low = UReadData();
+// 			temp1 = ((high << 8) | low);
+// 			
+// 			LCD_Command(0x01);
+// 			LCD_Command(0x80);
+// 			LCD_showvalue(temp1);
+// 			
+//  		}
 // 		if(milli() > pidUpdateTimeout + PID_UPDATE_TIME)
 // 		{
 // 			pidUpdateTimeout = milli();
@@ -166,8 +189,8 @@ int main(void)
 // 				LCD_write(' ');
 // 			}
 // 		}
- 		keyEventExecute();	
-   }
+//  		keyEventExecute();	
+	}
 }
 void processTempUpdate(void)
 {
@@ -230,11 +253,11 @@ else
 	
 // 	if(flagDebugMode)
 // 	{
-// 		displayDebugInfo(float (setPoint/10), float (currentPoint/10), float (Kp/10), float (Ki/10), float (Kd/10));
+// 		displayDebugInfo(float (setTemp/10), float (currentTemp/10), float (setKp/10), float (setsetKi/10), float (setKd/10));
 // 	}
 // 	else
 // 	{
-// 		pid_Controller(float (setPoint/10), float (currentPoint/10), float (Kp/10), float (Ki/10), float (Kd/10));
+// 		pid_Controller(float (setTemp/10), float (currentTemp/10), float (setKp/10), float (setsetKi/10), float (setKd/10));
 // 	}
 
 }
@@ -713,9 +736,22 @@ void eeprom_init(void)
 		eeprom_write_word(EEPROM_CHECKSUM_ADD, EEPROM_CHECKSUM);
 // 	}
 }
-// 
 void callback (void)
 {
+	if(UAvailableData() % 2)
+	{
+		UReadData();
+	}
 	
+	if(UAvailableData() >= 2)
+	{
+		high = UReadData();
+		low = UReadData();
+		temp1 = ((high << 8) | low);
+		
+		LCD_Command(0x01);
+		LCD_Command(0x80);
+		LCD_showvalue(temp1);
+	}
 }
 

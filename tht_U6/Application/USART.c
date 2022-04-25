@@ -6,13 +6,19 @@
  */ 
 
 #include "USART.h"
+#include "LCD_16x2.h"
+
+#include <avr/io.h>
+#include <util/delay.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 unsigned char USART_init(uint32_t baud_rate)
 {
 	/* Initialize Q */
 	UQFront = UQEnd = -1;
 	
-	uint16_t ubrrvalue = (F_CPU/(baud_rate * 8) - 1);
+	uint16_t ubrrvalue = ((F_CPU/(baud_rate * 8UL)) - 1);
 	if(ubrrvalue <= 0)
 	{
 		return USART_ERROR;
@@ -20,13 +26,12 @@ unsigned char USART_init(uint32_t baud_rate)
 	
 	else
 	{		
-		UBRRH = (unsigned char)(ubrrvalue >> 8);
-		UBRRL = (unsigned char)(ubrrvalue);
-	
-		UCSRC |= (1<<URSEL);
-		UCSRC |= ((3<<UCSZ0));
-		UCSRB |= ((1<<RXCIE) | (1<<RXEN) | (1 << TXEN));
+		UCSRB |= (1 << RXEN) | (1 << TXEN) | (1<<RXCIE);/* Turn on transmission and reception */
+		UCSRC |= (1 << URSEL) | (1 << UCSZ0) | (1 << UCSZ1);/* Use 8-bit character sizes */
 		UCSRA |= ((1<<U2X));
+
+		UBRRL = ubrrvalue;		/* Load lower 8-bits of the baud rate value */
+		UBRRH = (ubrrvalue >> 8);	/* Load upper 8-bits*/
 		
 		sei();
 		
@@ -89,7 +94,7 @@ char UReadData(void)
 	char data;
 	
 	if(UQFront == -1)
-	return 0;
+	UQFront = 0;
 	
 	data = URbuff[UQFront];
 	
@@ -110,6 +115,6 @@ uint8_t UAvailableData(void)
 {
 	if(UQFront == -1) return 0;
 	if(UQFront < UQEnd) return (UQEnd - UQFront + 1);
-	else if (UQFront > UQEnd) return (RECEIVE_BUFFER_SIZE - UQFront + UQEnd - 1);
+	else if (UQFront > UQEnd) return (RECEIVE_BUFFER_SIZE - UQFront + UQEnd + 1);
 	else return 1;
 }

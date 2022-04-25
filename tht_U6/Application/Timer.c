@@ -110,7 +110,6 @@ void timer2_stop(void)
 ISR(TIMER2_COMP_vect)
 {
 	fcnt_millis++;
-	PORTD ^= (1<<6);
 	callback();
 }
 long milli(void)
