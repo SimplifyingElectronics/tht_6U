@@ -10,6 +10,7 @@
 #include <avr/interrupt.h>
 #include <stdio.h>
 #include <avr/eeprom.h>
+#include <stdlib.h>
 
 #include "USART.h"
 #include "eeprom.h"
@@ -81,11 +82,14 @@ uint16_t setKd = 5;
 #define PID_UPDATE_TIME						50
 #define Interlock_Temp_Range				1
 
+#define UPDATE_TIME							5000
+
 void callback (void);
 void processTempUpdate(void);
 void keyEventExecute(void);
 void displayUserInfo(uint16_t);
 void displayDebugInfo(float);
+float pid_Controller(float, float, float, float, float);
 
 uint8_t operationStatus, OCR_value_2 = 0;
 uint8_t high;
@@ -105,97 +109,73 @@ float lastcurrentPoint = 0.00;
 extern uint8_t flg;
 int main(void)
 {
-/*	_delay_ms(50);*/
+	_delay_ms(50);
 	KEY_INIT;
 	KEY_PULLUP_INIT;
 
-	/* EEPROM write */
 	eeprom_init();
- 
+  
 	 while(USART_init(115200) == USART_ERROR);
   	 
 	 LCD_Init();
-
-	UWriteData_string("\n\t Echo Test ");
 	 
-// 	 if(flagDebugMode)
-// 	 {
-// 		 LCD_location(1,1);
-// 		 LCD_write_string("         = ");
-// 		 LCD_showvalue(setTemp);
-// 		 LCD_location(2,1);
-// 		 LCD_write_string("         = ");
-// 		 LCD_showvalue(setTemp);
-// 	 }
-// 	 else
-// 	 {
-// 		LCD_location(1,1);
-// 		LCD_write_string("         =");
-// 		LCD_location(1,1);
-// 		LCD_write_string("Cur Temp");
-// 		LCD_location(1,12);
-// 		LCD_showvalue(((float) setTemp));
-// 		LCD_location(2,1);
-// 		LCD_write_string("         =");
-// 		LCD_location(2,1);
-// 		LCD_write_string("Set Temp");
-// 		LCD_location(2,12);
-// 		LCD_showvalue(((float) setTemp));
-// 	 }
-// 	 
-// 	 timer0_init();
-// 	 timer1_init();
+	 if(flagDebugMode)
+	 {
+		 LCD_location(1,1);
+		 LCD_write_string("         = ");
+		 LCD_showvalue(setTemp);
+		 LCD_location(2,1);
+		 LCD_write_string("         = ");
+		 LCD_showvalue(setTemp);
+	 }
+	 else
+	 {
+		LCD_location(1,1);
+		LCD_write_string("         =");
+		LCD_location(1,1);
+		LCD_write_string("Cur Temp");
+		LCD_location(1,12);
+		LCD_showvalue(((float) setTemp));
+		LCD_location(2,1);
+		LCD_write_string("         =");
+		LCD_location(2,1);
+		LCD_write_string("Set Temp");
+		LCD_location(2,12);
+		LCD_showvalue(((float) setTemp));
+	 }
+ 	 
+	 timer0_init();
+	 timer1_init();
 	 timer2_init();
-// 	 
-// 	 INTERLOCK_KEY_INIT;
-// 	 RED_LED_INIT;
-// 	 GREEN_LED_INIT;
-// 	 RESET_INTERLOCK_KEY;
-// 	 
-// 	 currTemp = setTemp;
-//  	 
-// 	 long pidUpdateTimeout = milli();
-	
+ 	 
+	 INTERLOCK_KEY_INIT;
+	 RED_LED_INIT;
+	 GREEN_LED_INIT;
+	 RESET_INTERLOCK_KEY;
+  	 
+	 long pidUpdateTimeout = milli();
+
     /* Replace with your application code */
 	
     while (1) 
     {
-		
-		_delay_ms(400);
-// 		if(UAvailableData() % 2)
-// 		{
-// 			UReadData();
-// 		}
-// 		
-// 		if(UAvailableData() >= 2)
-// 		{
-// 			high = UReadData();
-// 			low = UReadData();
-// 			temp1 = ((high << 8) | low);
-// 			
-// 			LCD_Command(0x01);
-// 			LCD_Command(0x80);
-// 			LCD_showvalue(temp1);
-// 			
-//  		}
-// 		if(milli() > pidUpdateTimeout + PID_UPDATE_TIME)
-// 		{
-// 			pidUpdateTimeout = milli();
-// 			if(flagTempUpdate)
-// 			{
-// 				flagTempUpdate = 0;
-// 				processTempUpdate();
-// 				LCD_location(1,16);
-// 				LCD_write(' ');
-// 			}
-// 		}
-//  		keyEventExecute();	
+		if(milli() > pidUpdateTimeout + PID_UPDATE_TIME)
+		{
+			pidUpdateTimeout = milli();
+			if(flagTempUpdate)
+			{
+				flagTempUpdate = 0;
+				processTempUpdate();
+				LCD_location(1,16);
+				LCD_write(' ');
+			}
+		}
+ 		keyEventExecute();
 	}
 }
 void processTempUpdate(void)
 {
-	lastUpdatedTemp = 310;
-	prevTemp = 280;
+
 	uint16_t recTempData = lastUpdatedTemp;
 
 	if(recTempData == 0x3030) // this is error and print it on lcd
@@ -251,23 +231,22 @@ else
 	LCD_location(1,12);
 	LCD_showvalue(((float) currTemp));
 	
-// 	if(flagDebugMode)
-// 	{
-// 		displayDebugInfo(float (setTemp/10), float (currentTemp/10), float (setKp/10), float (setsetKi/10), float (setKd/10));
-// 	}
-// 	else
-// 	{
-// 		pid_Controller(float (setTemp/10), float (currentTemp/10), float (setKp/10), float (setsetKi/10), float (setKd/10));
-// 	}
+	if(flagDebugMode)
+	{
+		displayDebugInfo(pid_Controller((float) (setTemp/10), (float) (currTemp/10), (float) (setKp/10), (float) (setKi/10), (float) (setKd/10)));
+	}
+	else
+	{
+		pid_Controller((float) (setTemp/10), (float) (currTemp/10), (float) (setKp/10), (float) (setKi/10), (float) (setKd/10));
+	}
 
-}
- 
+} 
 void displayDebugInfo(float data)
 {
 	LCD_location(1,1);
 	
 	if((operationStatus == 1) || (operationStatus == 3))
-	{ 
+	{
 		LCD_write((OCR0 / 100) % 10 + 0x30);
 		LCD_write((OCR0 / 10) % 10 + 0x30);
 		LCD_write((OCR0 / 1) % 10 + 0x30);
@@ -317,110 +296,110 @@ void displayDebugInfo(float data)
 	char tempError[10];
 	sprintf(tempError, "%3.4f", (double) sumError);
 	LCD_write_string(tempError);
+
 }
- 
-// float pid_Controller(float setPoint, float currentPoint, float Kp, float Ki, float Kd)
-// {
-// 	float error = 0;
-// 
-// 	Ki = Ki * (PID_UPDATE_TIME/1000);
-// 	Kd = Kd / (PID_UPDATE_TIME/1000);
-// 
-// 	error = ((float)(setPoint - currentPoint));
-// 
-// 	if((error < ((float)Interlock_Temp_Range)) && (error > ((float)(-Interlock_Temp_Range))))
-// 	{
-// 		SET_INTERLOCK_KEY;
-// 		RED_LED_OFF;
-// 		GREEN_LED_ON;
-// 	}
-// 
-// 	else
-// 	{
-// 		RESET_INTERLOCK_KEY;
-// 		RED_LED_ON;
-// 		GREEN_LED_OFF;
-// 	}
-// 
-// 	if(error < (-1))
-// 	{
-// 		timer1_stop();
-// 		OCR_value_2 = 255;
-// 		OCR0 = OCR_value_2;
-// 		sumError = 0;
-// 		timer0_start();
-// 		operationStatus = 1;
-// 	}
-// 
-// 	else if(error > 1)
-// 	{
-// 		timer0_stop();
-// 		OCR_value_1 = 255;
-// 		OCR1A = OCR_value_1;
-//		sumError = 0;
-// 		timer1_start();
-// 		operationStatus = 2;
-// 
-// 	}
-// 	else
-// 	{
-// 		float absError = error;
-// 		if (absError < 0)
-// 		absError *= -1;
-// 		sumError += (Ki * absError);
-// 		if(sumError > ((2*Kp)/10))
-// 		sumError = ((2*Kp)/10);
-// 		else if(sumError < 0)
-// 		sumError = 0;
-// 		if(Ki == 0)
-// 		sumError =0;
-// 
-// 		double output;
-// 		float pointDiff = currentPoint - lastcurrentPoint;
-// 		if(pointDiff < 0)
-// 		pointDiff *= -1;
-// 		output = (Kp * absError + sumError - (Ki * pointDiff));
-// 		if(output > 255)
-// 		output = 255;
-// 		else if(output < -255)
-// 		output = -255;
-// 
-// 		output = abs(output);
-// 		
-// 		if(error > 0)
-// 		{
-// 			timer0_stop();
-// 			OCR_value_1 = output;
-// 			OCR1A = OCR_value_1;
-// 			timer1_start();
-// 			operationStatus = 4;		
-// 		}
-// 		
-// 		else if(error < 0)
-// 		{
-// 			timer1_stop();
-// 			OCR_value_2 = output;
-// 			OCR0 = OCR_value_2;
-// 			timer0_start();
-// 			operationStatus = 3;
-// 		}
-// 		
-// 		else
-// 		{
-// 			
-// 			OCR_value_2 = 0;
-// 			OCR0 = OCR_value_2;
-// 			OCR_value_1 = 0;
-// 			OCR1A = OCR_value_1;
-// 			sumError = 0;
-// 			timer0_stop();
-// 			timer1_stop();
-// 			operationStatus = 5;
-// 		}
-// 	}
-// lastcurrentPoint = currentpoint;
-// return (error);
-// }
+float pid_Controller(float setPoint, float currentPoint, float Kp, float Ki, float Kd)
+{
+	float error = 0;
+
+	Ki = Ki * (PID_UPDATE_TIME/1000);
+	Kd = Kd / (PID_UPDATE_TIME/1000);
+
+	error = ((float)(setPoint - currentPoint));
+
+	if((error < ((float)Interlock_Temp_Range)) && (error > ((float)(-Interlock_Temp_Range))))
+	{
+		SET_INTERLOCK_KEY;
+		RED_LED_OFF;
+		GREEN_LED_ON;
+	}
+
+	else
+	{
+		RESET_INTERLOCK_KEY;
+		RED_LED_ON;
+		GREEN_LED_OFF;
+	}
+
+	if(error < (-1))
+	{
+		timer1_stop();
+		OCR_value_2 = 255;
+		OCR0 = OCR_value_2;
+		sumError = 0;
+		timer0_start();
+		operationStatus = 1;
+	}
+
+	else if(error > 1)
+	{
+		timer0_stop();
+		OCR_value_1 = 255;
+		OCR1A = OCR_value_1;
+		sumError = 0;
+		timer1_start();
+		operationStatus = 2;
+
+	}
+	else
+	{
+		float absError = error;
+		if (absError < 0)
+		absError *= -1;
+		sumError += (Ki * absError);
+		if(sumError > ((2*Kp)/10))
+		sumError = ((2*Kp)/10);
+		else if(sumError < 0)
+		sumError = 0;
+		if(Ki == 0)
+		sumError =0;
+
+		double output;
+		float pointDiff = currentPoint - lastcurrentPoint;
+		if(pointDiff < 0)
+		pointDiff *= -1;
+		output = (Kp * absError + sumError - (Ki * pointDiff));
+		if(output > 255)
+		output = 255;
+		else if(output < -255)
+		output = -255;
+
+		output = abs(output);
+
+		if(error > 0)
+		{
+			timer0_stop();
+			OCR_value_1 = output;
+			OCR1A = OCR_value_1;
+			timer1_start();
+			operationStatus = 4;
+		}
+
+		else if(error < 0)
+		{
+			timer1_stop();
+			OCR_value_2 = output;
+			OCR0 = OCR_value_2;
+			timer0_start();
+			operationStatus = 3;
+		}
+
+		else
+		{
+
+			OCR_value_2 = 0;
+			OCR0 = OCR_value_2;
+			OCR_value_1 = 0;
+			OCR1A = OCR_value_1;
+			sumError = 0;
+			timer0_stop();
+			timer1_stop();
+			operationStatus = 5;
+		}
+	}
+	lastcurrentPoint = currentPoint;
+	return (error);
+}
 void displayUserInfo(uint16_t data)
 {
 	if(data>999)
@@ -438,8 +417,8 @@ void keyEventExecute(void)
 {
 	if((IS_KEY_INC_PRESSED) && (IS_KEY_DEC_PRESSED))
 	{
-// 		timer0_stop();
-// 		timer1_stop();
+		timer0_stop();
+		timer1_stop();
 		LCD_Clear();
 		_delay_ms(50);
 		
@@ -590,33 +569,35 @@ void keyEventExecute(void)
 		_delay_ms(250);
 		while(IS_KEY_PROG_PRESSED);
 		
+		LCD_Clear();
+		
 		 if(flagDebugMode)
 		 {
 			 LCD_location(1,1);
 			 LCD_write_string("         = ");
-			 LCD_showvalue(setTemp);
+			 LCD_showvalue(currTemp);
 			 LCD_location(2,1);
 			 LCD_write_string("         = ");
-			 LCD_showvalue(currTemp);
+			 LCD_showvalue(setTemp);
 		 }
 		 else
 		 {
 			LCD_location(1,1);
-			LCD_write_string("Set Temp = ");
-			LCD_showvalue(setTemp);
-			LCD_location(2,1);
 			LCD_write_string("Cur Temp = ");
 			LCD_showvalue(currTemp);
+			LCD_location(2,1);
+			LCD_write_string("Set Temp = ");
+			LCD_showvalue(setTemp);
 		 }
 	}
 	
-	if(IS_KEY_PROG_PRESSED)
+	else if(IS_KEY_PROG_PRESSED)
 	{
-// 		timer0_stop();
-// 		timer1_stop();
+		timer0_stop();
+		timer1_stop();
 		_delay_ms(50);
 		
-		while((!IS_KEY_INC_RELEASED) && (!IS_KEY_DEC_RELEASED));
+		while(!IS_KEY_PROG_RELEASED);
 		
 		LCD_location(2,12);
 		displayUserInfo(setTemp);
@@ -672,52 +653,88 @@ void keyEventExecute(void)
 		LCD_location(2,16);
 		LCD_write(' ');
 	}
+	
+	else if(IS_KEY_PROG_PRESSED)
+	{
+		long timeOut = milli();
+		
+		_delay_ms(50);
+		
+		while(!IS_KEY_PROG_RELEASED);
+	
+		if(timeOut >= milli() + UPDATE_TIME)
+		{
+			if(flagDebugMode == 0)
+			{
+				flagDebugMode = 1;
+				eeprom_write_word(EEPROM_DEBUG_ADD, flagDebugMode);
+				LCD_location(1,1);
+				LCD_write_string("         = ");
+				LCD_showvalue(currTemp);
+				LCD_location(2,1);
+				LCD_write_string("         = ");
+				LCD_showvalue(setTemp);
+			
+			}
+		
+			else if(flagDebugMode == 0)
+			{
+				flagDebugMode = 0;
+				eeprom_write_word(EEPROM_DEBUG_ADD, flagDebugMode);
+				LCD_location(1,1);
+				LCD_write_string("Cur Temp = ");
+				LCD_showvalue(currTemp);
+				LCD_location(2,1);
+				LCD_write_string("Set Temp = ");
+				LCD_showvalue(setTemp);			
+			}
+		}
+	}
 }
-
 void eeprom_init(void)
 {
-// 	if((eeprom_read_word(EEPROM_CHECKSUM_ADD)) == EEPROM_CHECKSUM)
-// 	{
-// 		setTemp = eeprom_read_word(EEPROM_TEMP_ADD);
-// 		setKp = eeprom_read_word(EEPROM_K_P_ADD);
-// 		setKi = eeprom_read_word(EEPROM_K_I_ADD);
-// 		setKd = eeprom_read_word(EEPROM_K_D_ADD);
-// 		flagDebugMode = eeprom_read_word(EEPROM_DEBUG_ADD);
-// 
-// 		if((setTemp < TEMP_LOW) || (setTemp > TEMP_HIGH))
-// 		{
-// 			setTemp = TEMP_DEFAULT;
-// 			eeprom_write_word(EEPROM_TEMP_ADD, setTemp);
-// 		}
-// 		
-// 		if((setKp < K_P_LOW) || (setKp > K_P_HIGH))
-// 		{
-// 			setKp = K_P_DEFAULT;
-// 			eeprom_write_word(EEPROM_K_P_ADD, setKp);
-// 		}
-// 		
-// 		if((setKi < K_I_LOW) || (setKi > K_I_HIGH))
-// 		{
-// 			setKi = K_I_DEFAULT;
-// 			eeprom_write_word(EEPROM_K_I_ADD, setKi);
-// 		}
-// 		
-// 		if((setKd < K_D_LOW) || (setKd > K_D_HIGH))
-// 		{
-// 			setKd = K_D_DEFAULT;
-// 			eeprom_write_word(EEPROM_K_D_ADD, setKd);
-// 		}
-// 		
-// 		if((flagDebugMode != 0) && (flagDebugMode != 1))
-// 		{
-// 			flagDebugMode = 0;
-// 			eeprom_write_word(EEPROM_DEBUG_ADD, flagDebugMode);
-// 		}
-// 		
-// 	}
-// 	
-// 	else
-// 	{
+	if((eeprom_read_word(EEPROM_CHECKSUM_ADD)) == EEPROM_CHECKSUM)
+	{
+		setTemp = eeprom_read_word(EEPROM_TEMP_ADD);
+		setKp = eeprom_read_word(EEPROM_K_P_ADD);
+		setKi = eeprom_read_word(EEPROM_K_I_ADD);
+		setKd = eeprom_read_word(EEPROM_K_D_ADD);
+		flagDebugMode = eeprom_read_word(EEPROM_DEBUG_ADD);
+
+		if((setTemp < TEMP_LOW) || (setTemp > TEMP_HIGH))
+		{
+			setTemp = TEMP_DEFAULT;
+			eeprom_write_word(EEPROM_TEMP_ADD, setTemp);
+		}
+		
+		if((setKp < K_P_LOW) || (setKp > K_P_HIGH))
+		{
+			setKp = K_P_DEFAULT;
+			eeprom_write_word(EEPROM_K_P_ADD, setKp);
+		}
+		
+		if((setKi < K_I_LOW) || (setKi > K_I_HIGH))
+		{
+			setKi = K_I_DEFAULT;
+			eeprom_write_word(EEPROM_K_I_ADD, setKi);
+		}
+		
+		if((setKd < K_D_LOW) || (setKd > K_D_HIGH))
+		{
+			setKd = K_D_DEFAULT;
+			eeprom_write_word(EEPROM_K_D_ADD, setKd);
+		}
+		
+		if((flagDebugMode != 0) && (flagDebugMode != 1))
+		{
+			flagDebugMode = 0;
+			eeprom_write_word(EEPROM_DEBUG_ADD, flagDebugMode);
+		}
+		
+	}
+	
+	else
+	{
 		setTemp = TEMP_DEFAULT;
 		eeprom_write_word(EEPROM_TEMP_ADD, setTemp);
 		
@@ -734,7 +751,7 @@ void eeprom_init(void)
 		eeprom_write_word(EEPROM_DEBUG_ADD, flagDebugMode);
 		
 		eeprom_write_word(EEPROM_CHECKSUM_ADD, EEPROM_CHECKSUM);
-// 	}
+	}
 }
 void callback (void)
 {
@@ -747,11 +764,9 @@ void callback (void)
 	{
 		high = UReadData();
 		low = UReadData();
-		temp1 = ((high << 8) | low);
+		lastUpdatedTemp = ((high << 8) | low);
 		
-		LCD_Command(0x01);
-		LCD_Command(0x80);
-		LCD_showvalue(temp1);
+		flagTempUpdate = 1;
 	}
 }
 

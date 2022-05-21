@@ -11,9 +11,11 @@
 
 void timer0_init(void);
 void timer0_start(void);
+void timer0_stop(void);
 
 void timer1_init(void);
 void timer1_start(void);
+void timer1_stop(void);
 
 void timer2_init(void);
 void timer2_start(void);

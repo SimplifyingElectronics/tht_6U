@@ -27,6 +27,7 @@ void timer0_init(void)
 void timer0_start(void)
 {
 	/* Clear OC0 on compare match, set OC0 at BOTTOM, (non-inverting mode) */
+/*	TCCR0 |= (1<<COM01);*/
 	TCCR0 |= (1<<COM01);
 	
 	/*  */
@@ -82,6 +83,7 @@ void timer2_init(void)
 	/* TIMSK OCIE2 fntmilli = 0  */
 	TCCR2 |= ((1<<WGM21) | (1<<CS22) | (1<<CS20));
 	OCR2 = 124;
+	OCR2 = 255;
 	TIMSK |= (1<<OCIE2);
 	TCNT2 = 0;
 	fcnt_millis = 0;
