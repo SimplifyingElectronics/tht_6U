@@ -1,0 +1,5 @@
+26/5/22
+
+#define UPDATE_TIME							5000
+currTemp = setTemp; cross
+OCR2 = 255; cross

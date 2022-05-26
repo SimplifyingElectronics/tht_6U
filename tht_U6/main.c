@@ -23,8 +23,8 @@
 #define DEC_KEY					3
 #define PROG_KEY				1
 #define ENTER_KEY				4
-#define KEY_INIT				DDRA &= (~((1<<INC_KEY) | (1<<DEC_KEY) | (1<<PROG_KEY) | (1<<ENTER_KEY)))
-#define KEY_PULLUP_INIT			PORTA |= ((1<<INC_KEY) | (1<<DEC_KEY) | (1<<PROG_KEY) | (1<<ENTER_KEY))
+#define KEY_INIT							DDRA &= (~((1<<INC_KEY) | (1<<DEC_KEY) | (1<<PROG_KEY) | (1<<ENTER_KEY)))
+#define KEY_PULLUP_INIT						PORTA |= ((1<<INC_KEY) | (1<<DEC_KEY) | (1<<PROG_KEY) | (1<<ENTER_KEY))
 
 #define IS_KEY_INC_PRESSED					((PINA & (1<<INC_KEY)) == 0)
 #define IS_KEY_INC_RELEASED					((PINA & (1<<INC_KEY)) != 0)
@@ -48,7 +48,7 @@
 #define TEMP_DEFAULT						285
 
 #define CUR_TEMP_HIGH_THRESHOLD				550
-#define CUR_TEMP_LOW_THRESHOLD				250
+#define CUR_TEMP_LOW_THRESHOLD				150
 
 #define K_P_LOW								10
 #define K_P_HIGH							7500
@@ -82,7 +82,7 @@ uint16_t setKd = 5;
 #define PID_UPDATE_TIME						50
 #define Interlock_Temp_Range				1
 
-#define UPDATE_TIME							5000
+#define UPDATE_TIME							50
 
 void callback (void);
 void processTempUpdate(void);
@@ -95,7 +95,7 @@ uint8_t operationStatus, OCR_value_2 = 0;
 uint8_t high;
 uint8_t low;
 
-uint16_t setTemp = 285, currTemp, fcntfilter, prevTemp;
+uint16_t setTemp = 285, currTemp, fcntfilter = 0, prevTemp = 0;
 uint16_t temp1;
 
 uint16_t baud_rate, OCR_value_1 = 0;
@@ -152,6 +152,8 @@ int main(void)
 	 RED_LED_INIT;
 	 GREEN_LED_INIT;
 	 RESET_INTERLOCK_KEY;
+	 
+	 currTemp = setTemp;
   	 
 	 long pidUpdateTimeout = milli();
 
@@ -233,11 +235,11 @@ else
 	
 	if(flagDebugMode)
 	{
-		displayDebugInfo(pid_Controller((float) (setTemp/10), (float) (currTemp/10), (float) (setKp/10), (float) (setKi/10), (float) (setKd/10)));
+		displayDebugInfo(pid_Controller(((float) (setTemp/10)), ((float) (currTemp/10)), ((float) (setKp/10)), ((float) (setKi/10)), ((float) (setKd/10))));
 	}
 	else
 	{
-		pid_Controller((float) (setTemp/10), (float) (currTemp/10), (float) (setKp/10), (float) (setKi/10), (float) (setKd/10));
+		pid_Controller(((float) (setTemp/10)), ((float) (currTemp/10)), ((float) (setKp/10)), ((float) (setKi/10)), ((float) (setKd/10)));
 	}
 
 } 
