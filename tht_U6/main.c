@@ -17,12 +17,12 @@
 #include "Timer.h"
 #include "LCD_16x2.h"
 
-#define VERSION					16
+#define VERSION								16
 
-#define INC_KEY					2
-#define DEC_KEY					3
-#define PROG_KEY				1
-#define ENTER_KEY				4
+#define INC_KEY								2
+#define DEC_KEY								3
+#define PROG_KEY							1
+#define ENTER_KEY							4
 #define KEY_INIT							DDRA &= (~((1<<INC_KEY) | (1<<DEC_KEY) | (1<<PROG_KEY) | (1<<ENTER_KEY)))
 #define KEY_PULLUP_INIT						PORTA |= ((1<<INC_KEY) | (1<<DEC_KEY) | (1<<PROG_KEY) | (1<<ENTER_KEY))
 
@@ -655,40 +655,39 @@ void keyEventExecute(void)
 		LCD_location(2,16);
 		LCD_write(' ');
 	}
-	
-	else if(IS_KEY_PROG_PRESSED)
+	else if((IS_KEY_INC_PRESSED) && (IS_KEY_ENTER_PRESSED))
 	{
 		long timeOut = milli();
 		
 		_delay_ms(50);
 		
-		while(!IS_KEY_PROG_RELEASED);
-	
-		if(timeOut >= milli() + UPDATE_TIME)
+		while((!IS_KEY_INC_RELEASED) && (!IS_KEY_ENTER_PRESSED))
 		{
-			if(flagDebugMode == 0)
+	
+			if(timeOut >= milli() + UPDATE_TIME)
 			{
-				flagDebugMode = 1;
-				eeprom_write_word(EEPROM_DEBUG_ADD, flagDebugMode);
-				LCD_location(1,1);
-				LCD_write_string("         = ");
-				LCD_showvalue(currTemp);
-				LCD_location(2,1);
-				LCD_write_string("         = ");
-				LCD_showvalue(setTemp);
-			
-			}
+				if(flagDebugMode == 0)
+				{
+					flagDebugMode = 1;
+					eeprom_write_word(EEPROM_DEBUG_ADD, flagDebugMode);
+					LCD_location(1,1);
+					LCD_write_string("         = ");
+					LCD_location(2,1);
+					LCD_write_string("         = ");
+				}
 		
-			else if(flagDebugMode == 0)
-			{
-				flagDebugMode = 0;
-				eeprom_write_word(EEPROM_DEBUG_ADD, flagDebugMode);
-				LCD_location(1,1);
-				LCD_write_string("Cur Temp = ");
-				LCD_showvalue(currTemp);
-				LCD_location(2,1);
-				LCD_write_string("Set Temp = ");
-				LCD_showvalue(setTemp);			
+				else if(flagDebugMode == 0)
+				{
+					flagDebugMode = 0;
+					eeprom_write_word(EEPROM_DEBUG_ADD, flagDebugMode);
+					LCD_location(1,1);
+					LCD_write_string("Cur Temp = ");
+					LCD_showvalue(currTemp);
+					LCD_location(2,1);
+					LCD_write_string("Set Temp = ");
+					LCD_showvalue(setTemp);			
+				}
+				break;
 			}
 		}
 	}
